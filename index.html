@@ -1,0 +1,1280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ResumeForge — Professional Resume Builder</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0e0f14;
+  --surface: #16181f;
+  --surface2: #1e2029;
+  --surface3: #252831;
+  --border: #2e3140;
+  --accent: #6c63ff;
+  --accent2: #ff6b9d;
+  --accent3: #43e97b;
+  --text: #e8eaf0;
+  --text2: #9499b0;
+  --text3: #5c6180;
+  --font-head: 'Syne', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+  --r: 10px;
+  --r2: 6px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.4);
+}
+[data-theme="light"] {
+  --bg: #f0f1f7;
+  --surface: #ffffff;
+  --surface2: #f5f6fc;
+  --surface3: #eaebf4;
+  --border: #d8dae8;
+  --text: #1a1c2e;
+  --text2: #555870;
+  --text3: #8890aa;
+  --shadow: 0 4px 24px rgba(0,0,0,0.1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:var(--font-body);background:var(--bg);color:var(--text);font-size:14px;line-height:1.6}
+
+/* FIXED SCROLLBAR FOR BETTER VISIBILITY */
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:var(--surface)}
+::-webkit-scrollbar-thumb{background:var(--text3);border-radius:5px;border:2px solid var(--surface)}
+::-webkit-scrollbar-thumb:hover{background:var(--accent)}
+
+/* LAYOUT */
+#app{display:grid;grid-template-columns:240px 1fr 1fr;grid-template-rows:56px 1fr;height:100vh;overflow:hidden}
+#topbar{grid-column:1/-1;grid-row:1;display:flex;align-items:center;gap:12px;padding:0 20px;background:var(--surface);border-bottom:1px solid var(--border);z-index:100}
+#sidebar{grid-column:1;grid-row:2;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column}
+#editor{grid-column:2;grid-row:2;overflow-y:auto;padding:24px;background:var(--bg)}
+#preview-panel{grid-column:3;grid-row:2;overflow-y:auto;background:var(--surface2);padding:20px;display:flex;flex-direction:column;align-items:center}
+
+/* TOPBAR */
+.logo{font-family:var(--font-head);font-size:18px;font-weight:800;color:var(--accent);letter-spacing:-0.5px}
+.logo span{color:var(--accent2)}
+.tb-spacer{flex:1}
+.tb-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:6px 14px;border-radius:var(--r2);cursor:pointer;font-family:var(--font-body);font-size:13px;font-weight:500;transition:all .15s;display:flex;align-items:center;gap:6px}
+.tb-btn:hover{background:var(--surface3);border-color:var(--accent)}
+.tb-btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.tb-btn.primary:hover{background:#7c75ff}
+.tb-btn.danger{background:transparent;border-color:#ff4444;color:#ff4444}
+.tb-btn.danger:hover{background:#ff4444;color:#fff}
+
+/* SIDEBAR */
+.sidebar-section{padding:16px 12px 8px;font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--text3);text-transform:uppercase}
+.sidebar-item{display:flex;align-items:center;gap:10px;padding:9px 16px;cursor:pointer;color:var(--text2);font-size:13px;font-weight:500;transition:all .12s;border-left:3px solid transparent;user-select:none}
+.sidebar-item:hover{color:var(--text);background:var(--surface2)}
+.sidebar-item.active{color:var(--accent);background:var(--surface2);border-left-color:var(--accent)}
+.sidebar-item .si-icon{font-size:16px;width:20px;text-align:center}
+.sidebar-bottom{margin-top:auto;padding:16px;border-top:1px solid var(--border)}
+.template-pills{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.tpl-pill{padding:8px 12px;border-radius:var(--r2);cursor:pointer;font-size:12px;font-weight:600;border:1.5px solid var(--border);background:transparent;color:var(--text2);transition:all .15s;font-family:var(--font-body);text-align:left}
+.tpl-pill:hover{border-color:var(--accent);color:var(--accent)}
+.tpl-pill.active{border-color:var(--accent);background:var(--accent);color:#fff}
+
+/* EDITOR CARDS */
+.ed-header{display:flex;align-items:center;gap:10px;margin-bottom:20px}
+.ed-title{font-family:var(--font-head);font-size:20px;font-weight:700;color:var(--text)}
+.ed-subtitle{color:var(--text3);font-size:12px;margin-top:2px}
+.section-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:16px;transition:border-color .15s}
+.section-card:hover{border-color:var(--border)}
+.card-title{font-family:var(--font-head);font-size:13px;font-weight:700;color:var(--text);letter-spacing:0.3px;display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:16px}
+.card-title .actions{display:flex;gap:6px}
+label{display:block;font-size:12px;font-weight:500;color:var(--text2);margin-bottom:5px}
+input[type=text],input[type=email],input[type=tel],input[type=url],textarea,select{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:9px 12px;border-radius:var(--r2);font-family:var(--font-body);font-size:13px;transition:border-color .15s;outline:none}
+input:focus,textarea:focus,select:focus{border-color:var(--accent)}
+textarea{resize:vertical;min-height:90px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.form-group{margin-bottom:12px}
+.entry-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r2);padding:16px;margin-bottom:12px;position:relative}
+.entry-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.entry-title{font-weight:600;font-size:13px;color:var(--text)}
+.btn-icon{background:transparent;border:1px solid var(--border);color:var(--text2);width:28px;height:28px;border-radius:var(--r2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .12s;flex-shrink:0}
+.btn-icon:hover{border-color:var(--accent);color:var(--accent)}
+.btn-icon.del:hover{border-color:#ff4444;color:#ff4444}
+.btn-add{width:100%;padding:9px;background:transparent;border:1.5px dashed var(--border);color:var(--text3);border-radius:var(--r2);cursor:pointer;font-family:var(--font-body);font-size:13px;transition:all .15s;margin-top:4px}
+.btn-add:hover{border-color:var(--accent);color:var(--accent)}
+.tag-container{display:flex;flex-wrap:wrap;gap:6px;padding:8px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r2);min-height:40px;cursor:text}
+.tag{display:inline-flex;align-items:center;gap:4px;background:var(--surface3);border:1px solid var(--border);padding:3px 8px;border-radius:20px;font-size:12px;color:var(--text2)}
+.tag .tag-del{cursor:pointer;color:var(--text3);font-size:11px;line-height:1;padding:0 2px;border-radius:2px}
+.tag .tag-del:hover{color:#ff4444}
+.tag-input{background:transparent;border:none;outline:none;font-family:var(--font-body);font-size:13px;color:var(--text);min-width:80px;flex:1}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)}
+.toggle-row:last-child{border-bottom:none}
+.toggle-label{font-size:13px;color:var(--text2)}
+.toggle{position:relative;width:36px;height:20px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;inset:0;background:var(--border);border-radius:20px;cursor:pointer;transition:.2s}
+.toggle-slider:before{content:'';position:absolute;width:14px;height:14px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.2s}
+.toggle input:checked+.toggle-slider{background:var(--accent)}
+.toggle input:checked+.toggle-slider:before{transform:translateX(16px)}
+
+/* PREVIEW */
+#preview-wrap{width:210mm;min-height:297mm;background:#fff;color:#1a1c2e;box-shadow:var(--shadow);border-radius:4px;overflow:hidden;transform-origin:top center;flex-shrink:0}
+.preview-toolbar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:16px;width:100%;max-width:210mm}
+.scale-info{font-size:11px;color:var(--text3);font-family:var(--font-mono)}
+
+/* FIX: AVOID PAGE BREAKS */
+.break-avoid { break-inside: avoid; page-break-inside: avoid; }
+
+/* ============ TEMPLATE 1: PROFESSIONAL (UPDATED) ============ */
+.tpl-professional{font-family:'Times New Roman', Times, serif;font-size:12px;line-height:1.5;color:#111;padding:0;background:#fff}
+.tpl-professional .p-header{background:#fff;color:#111;padding:32px 36px 16px;border-bottom:2px solid #222}
+.tpl-professional .p-name{font-size:32px;font-weight:bold;letter-spacing:1px;margin-bottom:4px;text-transform:uppercase}
+.tpl-professional .p-role{font-size:14px;color:#444;font-style:italic;margin-bottom:12px}
+.tpl-professional .p-contacts{display:flex;flex-wrap:wrap;gap:14px}
+.tpl-professional .p-contact{display:flex;align-items:center;gap:5px;font-size:12px;color:#444}
+.tpl-professional .p-body{display:grid;grid-template-columns:2fr 1fr;gap:0}
+.tpl-professional .p-main{padding:24px 28px}
+.tpl-professional .p-sidebar{padding:24px 20px;background:#fdfdfd;border-left:1px solid #ddd}
+.tpl-professional .p-section{margin-bottom:20px}
+.tpl-professional .p-section-title{font-size:14px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:#222;border-bottom:1px solid #ccc;padding-bottom:5px;margin-bottom:12px}
+.tpl-professional .p-entry{margin-bottom:14px}
+.tpl-professional .p-entry-title{font-weight:bold;font-size:13px;color:#111}
+.tpl-professional .p-entry-sub{font-size:12px;color:#444;font-style:italic;margin-bottom:2px}
+.tpl-professional .p-entry-date{font-size:11px;color:#666;margin-bottom:4px}
+.tpl-professional .p-entry-desc{font-size:12px;color:#222;line-height:1.6}
+.tpl-professional .p-skill-cat{margin-bottom:10px}
+.tpl-professional .p-skill-cat-name{font-size:12px;font-weight:bold;color:#111;margin-bottom:5px}
+.tpl-professional .p-skill-tag{display:inline-block;color:#333;font-size:11px;margin:0 4px 0 0}
+.tpl-professional .p-skill-tag:after{content:',';}
+.tpl-professional .p-skill-tag:last-child:after{content:'';}
+.tpl-professional .p-bullet{font-size:12px;color:#222;padding-left:12px;margin-bottom:3px;position:relative}
+.tpl-professional .p-bullet:before{content:'•';position:absolute;left:0;}
+.tpl-professional .p-lang{display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid #eee;font-size:12px}
+.tpl-professional .p-lang:last-child{border-bottom:none}
+.tpl-professional .p-lang-level{color:#555;font-size:11px;font-style:italic}
+.tpl-professional .p-cert-item{padding:5px 0;border-bottom:1px solid #eee;font-size:12px}
+.tpl-professional .p-cert-item:last-child{border-bottom:none}
+.tpl-professional .p-cert-name{font-weight:bold;color:#111;font-size:12px}
+.tpl-professional .p-cert-issuer{color:#555;font-size:11px}
+.tpl-professional .p-edu-entry{margin-bottom:10px}
+.tpl-professional .p-summary{font-size:12px;color:#222;line-height:1.6;text-align:justify}
+
+/* ============ TEMPLATE 2: MODERN ============ */
+.tpl-modern{font-family:'DM Sans',sans-serif;font-size:11px;color:#1e1e2e}
+.tpl-modern .m-header{padding:28px 32px;display:flex;align-items:flex-start;gap:24px;border-bottom:3px solid #43e97b}
+.tpl-modern .m-avatar{width:70px;height:70px;background:linear-gradient(135deg,#43e97b,#38f9d7);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:#fff;flex-shrink:0}
+.tpl-modern .m-name{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;letter-spacing:-0.5px;color:#1e1e2e}
+.tpl-modern .m-role{font-size:12px;color:#43c97b;font-weight:600;margin:3px 0 10px}
+.tpl-modern .m-contacts{display:flex;flex-wrap:wrap;gap:10px}
+.tpl-modern .m-contact{font-size:10px;color:#666;display:flex;align-items:center;gap:4px;background:#f0faf5;padding:3px 8px;border-radius:20px}
+.tpl-modern .m-body{padding:24px 32px}
+.tpl-modern .m-section{margin-bottom:20px}
+.tpl-modern .m-section-title{display:flex;align-items:center;gap:8px;font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#43c97b;margin-bottom:12px}
+.tpl-modern .m-section-title:after{content:'';flex:1;height:1px;background:linear-gradient(90deg,#43e97b44,transparent)}
+.tpl-modern .m-entry{margin-bottom:14px;padding-left:12px;border-left:2px solid #43e97b22}
+.tpl-modern .m-entry-title{font-weight:700;font-size:12px;color:#1e1e2e}
+.tpl-modern .m-entry-sub{color:#43c97b;font-size:11px;font-weight:500}
+.tpl-modern .m-entry-date{font-size:10px;color:#999;margin-bottom:4px;font-family:'DM Mono',monospace}
+.tpl-modern .m-entry-desc{font-size:11px;color:#555;line-height:1.65}
+.tpl-modern .m-skill-grid{display:flex;flex-wrap:wrap;gap:5px}
+.tpl-modern .m-skill-tag{padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;background:#f0faf5;color:#2a8a5a;border:1px solid #43e97b44}
+.tpl-modern .m-bullet{font-size:11px;color:#444;padding-left:14px;position:relative;margin-bottom:3px}
+.tpl-modern .m-bullet:before{content:'●';position:absolute;left:0;color:#43e97b;font-size:7px;top:3px}
+.tpl-modern .m-two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.tpl-modern .m-cert{background:#f8fffe;border:1px solid #43e97b33;border-radius:5px;padding:8px 10px;margin-bottom:6px}
+.tpl-modern .m-cert-name{font-weight:600;font-size:11px;color:#1e1e2e}
+.tpl-modern .m-cert-org{font-size:10px;color:#43c97b}
+
+/* ============ TEMPLATE 3: CREATIVE ============ */
+.tpl-creative{font-family:'DM Sans',sans-serif;font-size:11px;display:grid;grid-template-columns:160px 1fr;min-height:297mm}
+.tpl-creative .c-sidebar{background:linear-gradient(180deg,#ff6b9d 0%,#c44dff 100%);color:#fff;padding:0}
+.tpl-creative .c-avatar-area{padding:28px 20px 20px;text-align:center;background:rgba(0,0,0,0.15)}
+.tpl-creative .c-avatar{width:64px;height:64px;background:rgba(255,255,255,0.25);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:#fff;margin:0 auto 12px;border:3px solid rgba(255,255,255,0.5)}
+.tpl-creative .c-name-small{font-family:'Syne',sans-serif;font-size:14px;font-weight:800;letter-spacing:-0.3px;line-height:1.2}
+.tpl-creative .c-role-small{font-size:10px;opacity:0.8;margin-top:4px}
+.tpl-creative .c-sidebar-section{padding:16px 16px 8px}
+.tpl-creative .c-sidebar-title{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;opacity:0.7;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid rgba(255,255,255,0.25)}
+.tpl-creative .c-contact-item{font-size:10px;opacity:0.9;margin-bottom:5px;word-break:break-all;line-height:1.4}
+.tpl-creative .c-skill-bar{margin-bottom:8px}
+.tpl-creative .c-skill-name{font-size:10px;opacity:0.9;margin-bottom:3px}
+.tpl-creative .c-skill-dot-row{display:flex;gap:3px}
+.tpl-creative .c-skill-dot{width:14px;height:4px;border-radius:2px;background:rgba(255,255,255,0.3)}
+.tpl-creative .c-skill-dot.fill{background:rgba(255,255,255,0.9)}
+.tpl-creative .c-lang-item{font-size:10px;margin-bottom:5px;opacity:0.9}
+.tpl-creative .c-lang-level{font-size:9px;opacity:0.65}
+.tpl-creative .c-main{background:#fff;color:#1e1e2e;padding:28px 24px}
+.tpl-creative .c-main-name{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;letter-spacing:-0.5px;color:#1e1e2e}
+.tpl-creative .c-main-role{font-size:12px;color:#ff6b9d;font-weight:600;margin-bottom:16px}
+.tpl-creative .c-section{margin-bottom:18px}
+.tpl-creative .c-section-title{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#ff6b9d;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.tpl-creative .c-section-title:after{content:'';flex:1;height:1.5px;background:linear-gradient(90deg,#ff6b9d55,transparent)}
+.tpl-creative .c-entry{margin-bottom:12px}
+.tpl-creative .c-entry-title{font-weight:700;font-size:12px;color:#1e1e2e}
+.tpl-creative .c-entry-sub{font-size:11px;color:#c44dff;font-weight:500}
+.tpl-creative .c-entry-date{font-size:10px;color:#999;margin-bottom:4px;font-family:'DM Mono',monospace}
+.tpl-creative .c-entry-desc{font-size:11px;color:#555;line-height:1.6}
+.tpl-creative .c-tag{display:inline-block;padding:2px 7px;border-radius:3px;font-size:10px;font-weight:500;background:#fff0f6;color:#c44dff;border:1px solid #ff6b9d44;margin:2px 2px 2px 0}
+.tpl-creative .c-bullet{font-size:11px;color:#444;padding-left:12px;position:relative;margin-bottom:3px}
+.tpl-creative .c-bullet:before{content:'◆';position:absolute;left:0;color:#ff6b9d;font-size:6px;top:3px}
+
+/* ============ TEMPLATE 4: CONVENTIONAL (NEW) ============ */
+.tpl-conventional{font-family:'Times New Roman', Times, serif;font-size:12px;color:#000;background:#fff;padding:36px;max-width:210mm;margin:0 auto}
+.tpl-conventional .cv-header{text-align:center;margin-bottom:20px}
+.tpl-conventional .cv-name{font-size:26px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.tpl-conventional .cv-contacts{display:flex;justify-content:center;flex-wrap:wrap;gap:12px;font-size:12px}
+.tpl-conventional .cv-section{margin-bottom:16px}
+.tpl-conventional .cv-section-title{font-size:14px;font-weight:bold;text-transform:uppercase;border-bottom:1px solid #000;margin-bottom:10px;padding-bottom:2px}
+.tpl-conventional .cv-entry{margin-bottom:12px}
+.tpl-conventional .cv-entry-header{display:flex;justify-content:space-between;align-items:baseline;font-weight:bold;font-size:13px}
+.tpl-conventional .cv-entry-sub{display:flex;justify-content:space-between;font-style:italic;margin-bottom:6px;font-size:12px}
+.tpl-conventional .cv-skills{display:grid;grid-template-columns:1fr 3fr;gap:10px;margin-bottom:6px}
+.tpl-conventional .cv-skill-cat{font-weight:bold}
+.tpl-conventional .cv-bullet{margin-bottom:4px;padding-left:16px;position:relative;line-height:1.5}
+.tpl-conventional .cv-bullet:before{content:'•';position:absolute;left:0}
+.tpl-conventional .cv-desc{line-height:1.5;text-align:justify}
+
+/* UTILITY */
+.flex{display:flex}.items-center{align-items:center}.gap-2{gap:8px}.gap-3{gap:12px}.mt-2{margin-top:8px}.mt-3{margin-top:12px}
+.badge{padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;background:var(--surface3);color:var(--text2)}
+.badge.accent{background:#6c63ff22;color:var(--accent)}
+.divider{height:1px;background:var(--border);margin:16px 0}
+.hint{font-size:11px;color:var(--text3);font-style:italic;margin-top:4px}
+.section-vis-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px}
+.section-vis-row:last-child{border-bottom:none}
+.section-vis-name{color:var(--text)}
+select option{background:var(--surface2);color:var(--text)}
+
+/* ALERTS */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--accent);color:#fff;padding:12px 20px;border-radius:var(--r);font-size:13px;font-weight:500;z-index:9999;transform:translateY(80px);opacity:0;transition:all .3s;pointer-events:none}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* HISTORY BADGE */
+.history-badge{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r2);padding:6px 10px;font-size:11px;color:var(--text3);font-family:var(--font-mono)}
+.history-item{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px}
+.history-item:last-child{border-bottom:none}
+
+/* Color pickers */
+.color-option{width:24px;height:24px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:.15s}
+.color-option.active{border-color:var(--text);transform:scale(1.15)}
+.color-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+
+/* Responsive */
+@media(max-width:900px){
+  #app{grid-template-columns:1fr;grid-template-rows:56px auto auto}
+  #sidebar{display:none}
+  #preview-panel{display:none}
+  #editor{grid-column:1}
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <!-- TOPBAR -->
+  <div id="topbar">
+    <div class="logo">Resume<span>Forge</span></div>
+    <div class="flex gap-2" style="margin-left:8px">
+      <select id="template-select" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:5px 10px;border-radius:var(--r2);font-family:var(--font-body);font-size:12px;outline:none">
+        <option value="conventional">📄 Conventional (ATS)</option>
+        <option value="professional">📋 Professional</option>
+        <option value="modern">✨ Modern</option>
+        <option value="creative">🎨 Creative</option>
+      </select>
+    </div>
+    <div class="tb-spacer"></div>
+    <button class="tb-btn" onclick="importJSON()" title="Import JSON">⬆ Import</button>
+    <button class="tb-btn" onclick="exportJSON()" title="Export JSON">⬇ Export</button>
+    <button class="tb-btn" onclick="saveVersion()" title="Save version">💾 Save</button>
+    <button class="tb-btn primary" onclick="exportPDF()" title="Export PDF">📄 PDF</button>
+    <button class="tb-btn" onclick="toggleDark()" id="dark-btn" title="Toggle dark mode">🌙</button>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div id="sidebar">
+    <div class="sidebar-section">Sections</div>
+    <div id="sidebar-nav"></div>
+    <div class="sidebar-bottom">
+      <div class="sidebar-section" style="padding:0 0 8px">Templates</div>
+      <div class="template-pills" id="tpl-pills"></div>
+      <div style="margin-top:16px">
+        <div class="sidebar-section" style="padding:0 0 8px">Accent Color</div>
+        <div class="color-row" id="color-row"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EDITOR -->
+  <div id="editor">
+    <div id="editor-content"></div>
+  </div>
+
+  <!-- PREVIEW -->
+  <div id="preview-panel">
+    <div class="preview-toolbar">
+      <span style="font-family:var(--font-head);font-size:13px;font-weight:700;color:var(--text2)">LIVE PREVIEW</span>
+      <span class="scale-info" id="scale-info">210mm × A4</span>
+      <button class="tb-btn" onclick="exportPDF()" style="font-size:12px;padding:5px 12px">⬇ PDF</button>
+    </div>
+    <div id="preview-scale-wrap" style="transform-origin:top center;width:210mm">
+      <div id="preview-wrap">
+        <div id="resume-preview"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<input type="file" id="json-import-input" accept=".json" style="display:none" onchange="handleJSONImport(event)">
+
+<script>
+// =============================================
+// DEFAULT RESUME DATA
+// =============================================
+const DEFAULT_DATA = {
+  personal: {
+    name: "Atanu Paul",
+    role: "Data Analyst",
+    location: "Howrah, West Bengal, India",
+    phone: "+91-8967006057",
+    email: "paulatanu14@gmail.com",
+    linkedin: "linkedin.com/in/atanu-paul-181591232",
+    github: "github.com/atanupay06",
+    website: ""
+  },
+  summary: "Dynamic and detail-oriented Data Analyst with 1-3 years of experience specializing in SQL database management, data visualization, and workflow automation. Skilled in transforming complex data into actionable business insights through Power BI, Looker Studio, and custom automation using Appscript. Proven ability to manage 30+ member team productivity metrics, conduct rigorous data quality assurance, and deliver impactful client reports. Adept at handling large spatial datasets with GIS tools and integrating diverse data sources for comprehensive analytics.",
+  expertise: [
+    "Data Analysis - SQL (BigQuery, pgSQL), extraction & transformation",
+    "Dashboard development in Power BI, Looker Studio",
+    "Automation & workflow optimization using Appscript",
+    "Client reporting, presentation, and business review analytics",
+    "Project Data Management - Throughput, Quality Control, Stack Ranking",
+    "Cartography - Traffic Feature Mapping and Lane Annotation for AVs",
+    "Programming & Automation - Python, R, C++, AppScript",
+    "Machine Learning - Spatial Data Models & Data Science Techniques",
+    "Simulation Testing - Road Event Simulation & AV Behaviour Analysis",
+    "Collaboration & Version Control - Git, GitHub, CI/CD"
+  ],
+  skills: [
+    { category: "Data Visualization", items: ["Power BI", "Google Looker Studio", "MS Excel (VBA, PivotTables)", "MS PowerPoint", "Jira Dashboard"] },
+    { category: "GIS & Remote Sensing", items: ["ArcMap 10.8", "ArcGIS Pro", "QGIS", "ERDAS Imagine", "Google Earth Engine", "AutoCAD"] },
+    { category: "Programming", items: ["Python", "R", "C++", "JavaScript", "Google Earth Engine"] },
+    { category: "Data / ML", items: ["SQL", "scikit-learn", "pandas", "DBMS", "Data Warehousing", "ETL", "NumPy", "Matplotlib"] },
+    { category: "Collaboration", items: ["Git", "GitHub", "VS Code", "CI/CD", "Jira", "Agile"] }
+  ],
+  experience: [
+    {
+      title: "Sr. ITES Executive (Data Analyst)",
+      company: "iMerit Technologies",
+      location: "Remote",
+      startDate: "May 2023",
+      endDate: "Present",
+      description: "Managed lane and traffic mapping using Web-GIS, integrating LiDAR data analysis and AV feedback for precise cartographic updates. Built and validated simulation scenes with real-world data, tracked test results in Jira, and maintained regulatory compliance. Led team QA activities, produced RCA reports, and designed decision trees to drive process improvements. Oversaw monthly productivity data reporting, stack ranking, and dashboards for business reviews, automating data extraction workflows using Appscript and Power BI. Developed Kanban task boards and an Edge Case Management System. Utilized BigQuery for high-volume data extraction and cloud uploads."
+    },
+    {
+      title: "GIS Engineer",
+      company: "AABSyS IT Pvt. Ltd",
+      location: "Kolkata, India",
+      startDate: "Oct 2022",
+      endDate: "May 2023",
+      description: "Mapped and managed large spatial datasets for US infrastructure projects (Utility, Electricity, Gas Distribution), ensuring high accuracy through rigorous QA. Coordinated team data processes and SLA productivity calculations. Specialized in client reporting and translating complex findings into actionable insights through visualization in Looker Studio. Managed geo-coded utility data workflows in QGIS."
+    }
+  ],
+  projects: [
+    {
+      name: "Yield Prediction Dashboard",
+      tech: "Python, Streamlit, pandas, scikit-learn",
+      description: "Built an interactive Streamlit dashboard for agricultural yield prediction using machine learning models. Integrated spatial data inputs and real-time visualization."
+    },
+    {
+      name: "Kanban Board with CRUD",
+      tech: "Google Appscript, Google Sheets, Looker Studio",
+      description: "Developed a full CRUD-enabled Kanban board system for team task management with comment assignment, status tracking, and automated notifications."
+    },
+    {
+      name: "Edge Case Management System",
+      tech: "Appscript, BigQuery, Power BI",
+      description: "Designed and built an edge case tracking system for AV simulation testing with automated data extraction, issue categorization, and stakeholder reporting."
+    }
+  ],
+  certifications: [
+    { name: "Diploma in Data Science", issuer: "Vidyasagar University (CCAE)", year: "2022-2023" },
+    { name: "Advanced Google Sheets & AppScript", issuer: "Practical Training", year: "2023" },
+    { name: "Google Looker Masterclass (Looker & LookML A-Z)", issuer: "Udemy", year: "2025" },
+    { name: "Git and GitHub Bootcamp", issuer: "Udemy", year: "2025" },
+    { name: "Python for Data Science", issuer: "Udemy", year: "2023" },
+    { name: "Advanced MS Excel VBA", issuer: "Udemy", year: "2023" },
+    { name: "Probability for Data Science", issuer: "Great Learning", year: "2023" },
+    { name: "Introduction to Deep Learning", issuer: "Great Learning", year: "2023" },
+    { name: "Artificial Intelligence Fundamentals", issuer: "Great Learning", year: "2023" }
+  ],
+  education: [
+    { degree: "M.Sc. in Remote Sensing and GIS", institution: "Vidyasagar University, West Bengal", year: "2020 – 2022", grade: "9.06/10 CGPA" },
+    { degree: "Diploma in Data Science", institution: "Vidyasagar University (CCAE), WB", year: "2022 – 2023", grade: "93.4%" },
+    { degree: "B.Sc. in Mathematics", institution: "Vidyasagar University, West Bengal", year: "2017 – 2020", grade: "7.7/10 CGPA" }
+  ],
+  personalSkills: ["Leadership", "Teamwork", "Creative Problem Solving", "Communication & Public Speaking", "Self-Motivated", "Time Management", "Stakeholder Collaboration", "Analytical Thinking"],
+  languages: [
+    { name: "Bengali", level: "Native" },
+    { name: "English", level: "Fluent" },
+    { name: "Hindi", level: "Fluent" },
+    { name: "Odia", level: "Conversational" }
+  ],
+  volunteer: [
+    {
+      role: "Data Science Trainer (Volunteer)",
+      org: "Vidyasagar University & LinkedIn",
+      period: "Ongoing",
+      description: "Conducting data science training covering analysis, visualization, and hands-on Python projects. Mentoring learners via LinkedIn and providing feedback on project work."
+    },
+    {
+      role: "Data Science Trainer",
+      org: "SentientWare Tech Solutions Pvt. Ltd.",
+      period: "May 2024 – Jul 2024",
+      description: "Covered basics to intermediate Data Science topics for internship programme participants."
+    }
+  ],
+  hobbies: ["Cricket", "Gardening", "Drawing"],
+  sectionVisibility: {
+    summary: true, expertise: true, skills: true, experience: true,
+    projects: true, certifications: true, education: true,
+    personalSkills: true, languages: true, volunteer: true, hobbies: true
+  }
+};
+
+// =============================================
+// APP STATE
+// =============================================
+let state = JSON.parse(localStorage.getItem('resumeforge_data') || 'null') || deepClone(DEFAULT_DATA);
+let currentSection = 'personal';
+let currentTemplate = localStorage.getItem('resumeforge_template') || 'conventional';
+let isDark = localStorage.getItem('resumeforge_dark') !== 'false';
+let versionHistory = JSON.parse(localStorage.getItem('resumeforge_history') || '[]');
+const ACCENT_COLORS = ['#6c63ff','#ff6b9d','#43e97b','#f59e0b','#06b6d4','#ef4444','#8b5cf6','#ec4899'];
+let accentColor = localStorage.getItem('resumeforge_accent') || '#6c63ff';
+
+function deepClone(o){return JSON.parse(JSON.stringify(o))}
+function save(){
+  localStorage.setItem('resumeforge_data', JSON.stringify(state));
+  localStorage.setItem('resumeforge_template', currentTemplate);
+  localStorage.setItem('resumeforge_dark', isDark);
+  localStorage.setItem('resumeforge_accent', accentColor);
+}
+function showToast(msg, dur=2500){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),dur);
+}
+
+// =============================================
+// SIDEBAR NAV
+// =============================================
+const SECTIONS = [
+  {id:'personal',label:'Personal Info',icon:'👤'},
+  {id:'summary',label:'Professional Summary',icon:'📝'},
+  {id:'expertise',label:'Area of Expertise',icon:'⭐'},
+  {id:'skills',label:'Technical Skills',icon:'🛠'},
+  {id:'experience',label:'Work Experience',icon:'💼'},
+  {id:'projects',label:'Projects',icon:'🚀'},
+  {id:'certifications',label:'Certifications',icon:'🏆'},
+  {id:'education',label:'Education',icon:'🎓'},
+  {id:'personalSkills',label:'Personal Skills',icon:'🧠'},
+  {id:'languages',label:'Languages',icon:'🌍'},
+  {id:'volunteer',label:'Volunteer Experience',icon:'🤝'},
+  {id:'hobbies',label:'Hobbies',icon:'🎯'},
+  {id:'visibility',label:'Show/Hide Sections',icon:'👁'},
+  {id:'history',label:'Version History',icon:'🕐'},
+];
+
+function buildSidebar(){
+  const nav=document.getElementById('sidebar-nav');
+  nav.innerHTML=SECTIONS.map(s=>`
+    <div class="sidebar-item ${s.id===currentSection?'active':''}" onclick="switchSection('${s.id}')">
+      <span class="si-icon">${s.icon}</span>${s.label}
+    </div>`).join('');
+
+  const pills=document.getElementById('tpl-pills');
+  pills.innerHTML=['conventional','professional','modern','creative'].map(t=>`
+    <button class="tpl-pill ${t===currentTemplate?'active':''}" onclick="switchTemplate('${t}')">${
+    t==='conventional'?'📄 Conventional':t==='professional'?'📋 Professional':t==='modern'?'✨ Modern':'🎨 Creative'}</button>`).join('');
+
+  const cr=document.getElementById('color-row');
+  cr.innerHTML=ACCENT_COLORS.map(c=>`
+    <div class="color-option ${c===accentColor?'active':''}" style="background:${c}" onclick="setAccent('${c}')" title="${c}"></div>`).join('');
+  document.getElementById('template-select').value=currentTemplate;
+}
+
+function switchSection(id){
+  currentSection=id;
+  buildSidebar();
+  renderEditor();
+}
+function switchTemplate(t){
+  currentTemplate=t;
+  buildSidebar();
+  save();
+  renderPreview();
+  showToast('Template: '+t.charAt(0).toUpperCase()+t.slice(1));
+}
+function setAccent(c){
+  accentColor=c;
+  document.documentElement.style.setProperty('--accent',c);
+  buildSidebar();
+  save();
+}
+function toggleDark(){
+  isDark=!isDark;
+  document.documentElement.setAttribute('data-theme',isDark?'dark':'light');
+  document.getElementById('dark-btn').textContent=isDark?'🌙':'☀️';
+  save();
+}
+
+// =============================================
+// EDITOR RENDERERS
+// =============================================
+function renderEditor(){
+  const c=document.getElementById('editor-content');
+  const map={
+    personal:renderPersonalEditor,summary:renderSummaryEditor,
+    expertise:renderExpertiseEditor,skills:renderSkillsEditor,
+    experience:renderExperienceEditor,projects:renderProjectsEditor,
+    certifications:renderCertsEditor,education:renderEducationEditor,
+    personalSkills:renderPersonalSkillsEditor,languages:renderLanguagesEditor,
+    volunteer:renderVolunteerEditor,hobbies:renderHobbiesEditor,
+    visibility:renderVisibilityEditor,history:renderHistoryEditor
+  };
+  c.innerHTML='';
+  if(map[currentSection]) map[currentSection](c);
+}
+
+function renderPersonalEditor(c){
+  c.innerHTML=`<div class="ed-header"><div><div class="ed-title">Personal Info</div><div class="ed-subtitle">Your contact and identity information</div></div></div>
+  <div class="section-card">
+    <div class="form-row">
+      ${fld('Full Name','name','personal','text','e.g. John Doe')}
+      ${fld('Job Title / Role','role','personal','text','e.g. Data Analyst')}
+    </div>
+    <div class="form-row">
+      ${fld('Phone','phone','personal','tel','+91-XXXXXXXXXX')}
+      ${fld('Email','email','personal','email','you@example.com')}
+    </div>
+    ${fld('Location','location','personal','text','City, State, Country')}
+    ${fld('LinkedIn URL','linkedin','personal','text','linkedin.com/in/yourprofile')}
+    ${fld('GitHub URL','github','personal','text','github.com/yourusername')}
+    ${fld('Website (optional)','website','personal','url','yourwebsite.com')}
+  </div>`;
+}
+function fld(label,key,section,type,ph){
+  return `<div class="form-group"><label>${label}</label>
+    <input type="${type}" id="pf_${key}" value="${esc(state[section][key]||'')}" placeholder="${ph}"
+      oninput="state['${section}']['${key}']=this.value;save();renderPreview()">
+  </div>`;
+}
+
+function renderSummaryEditor(c){
+  c.innerHTML=`<div class="ed-header"><div><div class="ed-title">Professional Summary</div><div class="ed-subtitle">A compelling overview of your career</div></div></div>
+  <div class="section-card">
+    <div class="form-group"><label>Summary Text</label>
+      <textarea style="min-height:160px" oninput="state.summary=this.value;save();renderPreview()">${esc(state.summary)}</textarea>
+    </div>
+    <div class="hint">💡 Tip: Keep it to 3-5 sentences. Focus on your unique value and key skills.</div>
+  </div>`;
+}
+
+function renderExpertiseEditor(c){
+  c.innerHTML=`<div class="ed-header"><div><div class="ed-title">Area of Expertise</div><div class="ed-subtitle">Your core competencies and specializations</div></div></div>
+  <div class="section-card" id="expertise-list">
+    ${state.expertise.map((e,i)=>`
+      <div class="entry-card" id="exp_${i}">
+        <div class="entry-card-header">
+          <span class="entry-title">Item ${i+1}</span>
+          <div class="flex gap-2">
+            <button class="btn-icon del" onclick="removeExpertise(${i})" title="Remove">✕</button>
+          </div>
+        </div>
+        <div class="form-group"><input type="text" value="${esc(e)}" oninput="state.expertise[${i}]=this.value;save();renderPreview()"></div>
+      </div>`).join('')}
+    <button class="btn-add" onclick="addExpertise()">+ Add Expertise Item</button>
+  </div>`;
+}
+function addExpertise(){state.expertise.push('New expertise area');save();renderEditor();renderPreview();}
+function removeExpertise(i){state.expertise.splice(i,1);save();renderEditor();renderPreview();}
+
+function renderSkillsEditor(c){
+  c.innerHTML=`<div class="ed-header"><div><div class="ed-title">Technical Skills</div><div class="ed-subtitle">Skills organized by category</div></div></div>
+  <div id="skills-list">
+    ${state.skills.map((cat,ci)=>`
+      <div class="section-card" id="scat_${ci}">
+        <div class="card-title">
+          <div class="flex items-center gap-2"><span>Category ${ci+1}</span></div>
+          <div class="actions"><button class="btn-icon del" onclick="removeCat(${ci})" title="Remove category">✕</button></div>
+        </div>
+        <div class="form-group"><label>Category Name</label>
+          <input type="text" value="${esc(cat.category)}" oninput="state.skills[${ci}].category=this.value;save();renderPreview()">
+        </div>
+        <div class="form-group"><label>Skills (press Enter to add, click × to remove)</label>
+          <div class="tag-container" id="tags_${ci}" onclick="document.getElementById('taginput_${ci}').focus()">
+            ${cat.items.map((item,ii)=>`<span class="tag">${esc(item)}<span class="tag-del" onclick="removeSkillItem(${ci},${ii})">×</span></span>`).join('')}
+            <input class="tag-input" id="taginput_${ci}" placeholder="Add skill..." onkeydown="addSkillItem(event,${ci})">
+          </div>
+        </div>
+      </div>`).join('')}
+  </div>
+  <button class="btn-add" onclick="addSkillCat()">+ Add Skill Category</button>`;
+}
+function addSkillCat(){state.skills.push({category:'New Category',items:[]});save();renderEditor();renderPreview();}
+function removeCat(i){state.skills.splice(i,1);save();renderEditor();renderPreview();}
+function addSkillItem(e,ci){if(e.key==='Enter'&&e.target.value.trim()){state.skills[ci].items.push(e.target.value.trim());e.target.value='';save();renderEditor();renderPreview();}}
+function removeSkillItem(ci,ii){state.skills[ci].items.splice(ii,1);save();renderEditor();renderPreview();}
+
+function renderExperienceEditor(c){
+  c.innerHTML=`<div class="ed-header"><div><div class="ed-title">Work Experience</div><div class="ed-subtitle">Your professional history</div></div></div>
+  <div id="exp-list">
+    ${state.experience.map((exp,i)=>`
+      <div class="section-card">
+        <div class="card-title">
+          <span>${esc(exp.title)||'Experience '+i}</span>
+          <div class="actions">
+            <button class="btn-icon del" onclick="removeExp(${i})">✕</button>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Job Title</label><input type="text" value="${esc(exp.title)}" oninput="state.experience[${i}].title=this.value;save();renderPreview()"></div>
+          <div class="form-group"><label>Company</label><input type="text" value="${esc(exp.company)}" oninput="state.experience[${i}].company=this.value;save();renderPreview()"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Start Date</label><input type="text" value="${esc(exp.startDate)}" placeholder="e.g. Jan 2023" oninput="state.experience[${i}].startDate=this.value;save();renderPreview()"></div>
+          <div class="form-group"><label>End Date</label><input type="text" value="${esc(exp.endDate)}" placeholder="e.g. Present" oninput="state.experience[${i}].endDate=this.value;save();renderPreview()"></div>
+        </div>
+        <div class="form-group"><label>Location</label><input type="text" value="${esc(exp.location||'')}" oninput="state.experience[${i}].location=this.value;save();renderPreview()"></div>
+        <div class="form-group"><label>Description</label><textarea oninput="state.experience[${i}].description=this.value;save();renderPreview()">${esc(exp.description)}</textarea></div>
+      </div>`).join('')}
+  </div>
+  <button class="btn-add" onclick="addExp()">+ Add Experience</button>`;
+}
+function addExp(){state.experience.push({title:'',company:'',location:'',startDate:'',endDate:'',description:''});save();renderEditor();renderPreview();}
+function removeExp(i){state.experience.splice(i,1);save();renderEditor();renderPreview();}
+
+function renderProjectsEditor(c){
+  c.innerHTML=`<div class="ed-header"><div><div class="ed-title">Projects</div><div class="ed-subtitle">Showcase your key projects</div></div></div>
+  <div id="proj-list">
+    ${state.projects.map((p,i)=>`
+      <div class="section-card">
+        <div class="card-title">
+          <span>${esc(p.name)||'Project '+i}</span>
+          <div class="actions"><button class="btn-icon del" onclick="removeProj(${i})">✕</button></div>
+        </div>
+        <div class="form-group"><label>Project Name</label><input type="text" value="${esc(p.name)}" oninput="state.projects[${i}].name=this.value;save();renderPreview()"></div>
+        <div class="form-group"><label>Technologies Used</label><input type="text" value="${esc(p.tech)}" placeholder="Python, React, etc." oninput="state.projects[${i}].tech=this.value;save();renderPreview()"></div>
+        <div class="form-group"><label>Description</label><textarea oninput="state.projects[${i}].description=this.value;save();renderPreview()">${esc(p.description)}</textarea></div>
+      </div>`).join('')}
+  </div>
+  <button class="btn-add" onclick="addProj()">+ Add Project</button>`;
+}
+function addProj(){state.projects.push({name:'',tech:'',description:''});save();renderEditor();renderPreview();}
+function removeProj(i){state.projects.splice(i,1);save();renderEditor();renderPreview();}
+
+function renderCertsEditor(c){
+  c.innerHTML=`<div class="ed-header"><div><div class="ed-title">Certifications</div></div></div>
+  <div id="cert-list">
+    ${state.certifications.map((cert,i)=>`
+      <div class="entry-card">
+        <div class="entry-card-header"><span class="entry-title">${esc(cert.name)||'Certification '+i}</span>
+          <button class="btn-icon del" onclick="removeCert(${i})">✕</button></div>
+        <div class="form-row">
+          <div class="form-group"><label>Certification Name</label><input type="text" value="${esc(cert.name)}" oninput="state.certifications[${i}].name=this.value;save();renderPreview()"></div>
+          <div class="form-group"><label>Issuer</label><input type="text" value="${esc(cert.issuer)}" oninput="state.certifications[${i}].issuer=this.value;save();renderPreview()"></div>
+        </div>
+        <div class="form-group"><label>Year</label><input type="text" value="${esc(cert.year)}" oninput="state.certifications[${i}].year=this.value;save();renderPreview()"></div>
+      </div>`).join('')}
+  </div>
+  <button class="btn-add" onclick="addCert()">+ Add Certification</button>`;
+}
+function addCert(){state.certifications.push({name:'',issuer:'',year:''});save();renderEditor();renderPreview();}
+function removeCert(i){state.certifications.splice(i,1);save();renderEditor();renderPreview();}
+
+function renderEducationEditor(c){
+  c.innerHTML=`<div class="ed-header"><div><div class="ed-title">Education</div></div></div>
+  <div id="edu-list">
+    ${state.education.map((edu,i)=>`
+      <div class="entry-card">
+        <div class="entry-card-header"><span class="entry-title">${esc(edu.degree)||'Degree '+i}</span>
+          <button class="btn-icon del" onclick="removeEdu(${i})">✕</button></div>
+        <div class="form-group"><label>Degree / Qualification</label><input type="text" value="${esc(edu.degree)}" oninput="state.education[${i}].degree=this.value;save();renderPreview()"></div>
+        <div class="form-group"><label>Institution</label><input type="text" value="${esc(edu.institution)}" oninput="state.education[${i}].institution=this.value;save();renderPreview()"></div>
+        <div class="form-row">
+          <div class="form-group"><label>Year</label><input type="text" value="${esc(edu.year)}" oninput="state.education[${i}].year=this.value;save();renderPreview()"></div>
+          <div class="form-group"><label>Grade / Score</label><input type="text" value="${esc(edu.grade||'')}" oninput="state.education[${i}].grade=this.value;save();renderPreview()"></div>
+        </div>
+      </div>`).join('')}
+  </div>
+  <button class="btn-add" onclick="addEdu()">+ Add Education</button>`;
+}
+function addEdu(){state.education.push({degree:'',institution:'',year:'',grade:''});save();renderEditor();renderPreview();}
+function removeEdu(i){state.education.splice(i,1);save();renderEditor();renderPreview();}
+
+function renderPersonalSkillsEditor(c){
+  c.innerHTML=`<div class="ed-header"><div><div class="ed-title">Personal Skills</div></div></div>
+  <div class="section-card">
+    <div class="form-group"><label>Skills (press Enter to add)</label>
+      <div class="tag-container" id="ps-tags" onclick="document.getElementById('ps-input').focus()">
+        ${state.personalSkills.map((s,i)=>`<span class="tag">${esc(s)}<span class="tag-del" onclick="removePS(${i})">×</span></span>`).join('')}
+        <input class="tag-input" id="ps-input" placeholder="Add skill..." onkeydown="addPS(event)">
+      </div>
+    </div>
+  </div>`;
+}
+function addPS(e){if(e.key==='Enter'&&e.target.value.trim()){state.personalSkills.push(e.target.value.trim());e.target.value='';save();renderEditor();renderPreview();}}
+function removePS(i){state.personalSkills.splice(i,1);save();renderEditor();renderPreview();}
+
+function renderLanguagesEditor(c){
+  c.innerHTML=`<div class="ed-header"><div><div class="ed-title">Languages</div></div></div>
+  <div id="lang-list">
+    ${state.languages.map((l,i)=>`
+      <div class="entry-card">
+        <div class="entry-card-header"><span class="entry-title">${esc(l.name)||'Language '+i}</span>
+          <button class="btn-icon del" onclick="removeLang(${i})">✕</button></div>
+        <div class="form-row">
+          <div class="form-group"><label>Language</label><input type="text" value="${esc(l.name)}" oninput="state.languages[${i}].name=this.value;save();renderPreview()"></div>
+          <div class="form-group"><label>Proficiency</label>
+            <select onchange="state.languages[${i}].level=this.value;save();renderPreview()">
+              ${['Native','Fluent','Advanced','Intermediate','Conversational','Basic'].map(lv=>`<option ${l.level===lv?'selected':''}>${lv}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+      </div>`).join('')}
+  </div>
+  <button class="btn-add" onclick="addLang()">+ Add Language</button>`;
+}
+function addLang(){state.languages.push({name:'',level:'Intermediate'});save();renderEditor();renderPreview();}
+function removeLang(i){state.languages.splice(i,1);save();renderEditor();renderPreview();}
+
+function renderVolunteerEditor(c){
+  c.innerHTML=`<div class="ed-header"><div><div class="ed-title">Volunteer Experience</div></div></div>
+  <div id="vol-list">
+    ${state.volunteer.map((v,i)=>`
+      <div class="entry-card">
+        <div class="entry-card-header"><span class="entry-title">${esc(v.role)||'Role '+i}</span>
+          <button class="btn-icon del" onclick="removeVol(${i})">✕</button></div>
+        <div class="form-row">
+          <div class="form-group"><label>Role</label><input type="text" value="${esc(v.role)}" oninput="state.volunteer[${i}].role=this.value;save();renderPreview()"></div>
+          <div class="form-group"><label>Organization</label><input type="text" value="${esc(v.org)}" oninput="state.volunteer[${i}].org=this.value;save();renderPreview()"></div>
+        </div>
+        <div class="form-group"><label>Period</label><input type="text" value="${esc(v.period)}" oninput="state.volunteer[${i}].period=this.value;save();renderPreview()"></div>
+        <div class="form-group"><label>Description</label><textarea oninput="state.volunteer[${i}].description=this.value;save();renderPreview()">${esc(v.description)}</textarea></div>
+      </div>`).join('')}
+  </div>
+  <button class="btn-add" onclick="addVol()">+ Add Volunteer Experience</button>`;
+}
+function addVol(){state.volunteer.push({role:'',org:'',period:'',description:''});save();renderEditor();renderPreview();}
+function removeVol(i){state.volunteer.splice(i,1);save();renderEditor();renderPreview();}
+
+function renderHobbiesEditor(c){
+  c.innerHTML=`<div class="ed-header"><div><div class="ed-title">Hobbies & Interests</div></div></div>
+  <div class="section-card">
+    <div class="form-group"><label>Hobbies (press Enter to add)</label>
+      <div class="tag-container" id="hob-tags" onclick="document.getElementById('hob-input').focus()">
+        ${state.hobbies.map((h,i)=>`<span class="tag">${esc(h)}<span class="tag-del" onclick="removeHobby(${i})">×</span></span>`).join('')}
+        <input class="tag-input" id="hob-input" placeholder="Add hobby..." onkeydown="addHobby(event)">
+      </div>
+    </div>
+  </div>`;
+}
+function addHobby(e){if(e.key==='Enter'&&e.target.value.trim()){state.hobbies.push(e.target.value.trim());e.target.value='';save();renderEditor();renderPreview();}}
+function removeHobby(i){state.hobbies.splice(i,1);save();renderEditor();renderPreview();}
+
+function renderVisibilityEditor(c){
+  const labels={summary:'Professional Summary',expertise:'Area of Expertise',skills:'Technical Skills',
+    experience:'Work Experience',projects:'Projects',certifications:'Certifications',
+    education:'Education',personalSkills:'Personal Skills',languages:'Languages',
+    volunteer:'Volunteer Experience',hobbies:'Hobbies'};
+  c.innerHTML=`<div class="ed-header"><div><div class="ed-title">Show / Hide Sections</div><div class="ed-subtitle">Control which sections appear on your resume</div></div></div>
+  <div class="section-card">
+    ${Object.entries(labels).map(([k,v])=>`
+      <div class="section-vis-row">
+        <span class="section-vis-name">${v}</span>
+        <label class="toggle"><input type="checkbox" ${state.sectionVisibility[k]?'checked':''} onchange="state.sectionVisibility['${k}']=this.checked;save();renderPreview()">
+        <span class="toggle-slider"></span></label>
+      </div>`).join('')}
+  </div>`;
+}
+
+function renderHistoryEditor(c){
+  c.innerHTML=`<div class="ed-header"><div><div class="ed-title">Version History</div><div class="ed-subtitle">Saved snapshots of your resume</div></div></div>
+  <div class="section-card">
+    <button class="tb-btn primary" style="margin-bottom:16px" onclick="saveVersion()">💾 Save Current Version</button>
+    ${versionHistory.length===0?'<div class="hint">No versions saved yet. Click "Save" to create a snapshot.</div>':
+      versionHistory.slice().reverse().map((v,i)=>`
+        <div class="history-item">
+          <div><div style="font-size:13px;color:var(--text)">${v.label}</div>
+          <div style="font-size:11px;color:var(--text3)">${v.ts}</div></div>
+          <div class="flex gap-2">
+            <button class="tb-btn" style="font-size:11px;padding:4px 10px" onclick="restoreVersion(${versionHistory.length-1-i})">Restore</button>
+            <button class="btn-icon del" onclick="deleteVersion(${versionHistory.length-1-i})">✕</button>
+          </div>
+        </div>`).join('')}
+  </div>`;
+}
+function saveVersion(){
+  const label=prompt('Version label (optional):','v'+(versionHistory.length+1)+' - '+new Date().toLocaleDateString())||('v'+(versionHistory.length+1));
+  versionHistory.push({label,ts:new Date().toLocaleString(),data:deepClone(state)});
+  if(versionHistory.length>20)versionHistory.shift();
+  localStorage.setItem('resumeforge_history',JSON.stringify(versionHistory));
+  showToast('Version saved: '+label);
+  if(currentSection==='history')renderEditor();
+}
+function restoreVersion(i){
+  if(confirm('Restore this version? Current changes will be overwritten.')){
+    state=deepClone(versionHistory[i].data);save();renderEditor();renderPreview();
+    showToast('Version restored!');
+  }
+}
+function deleteVersion(i){
+  versionHistory.splice(i,1);
+  localStorage.setItem('resumeforge_history',JSON.stringify(versionHistory));
+  renderEditor();showToast('Version deleted');
+}
+
+// =============================================
+// PREVIEW RENDERERS
+// =============================================
+function renderPreview(){
+  const wrap=document.getElementById('resume-preview');
+  const sv=state.sectionVisibility||{};
+  if(currentTemplate==='conventional') wrap.innerHTML=renderConventional(sv);
+  else if(currentTemplate==='professional') wrap.innerHTML=renderProfessional(sv);
+  else if(currentTemplate==='modern') wrap.innerHTML=renderModern(sv);
+  else wrap.innerHTML=renderCreative(sv);
+  scalePreview();
+}
+
+function scalePreview(){
+  const panel=document.getElementById('preview-panel');
+  const wrap=document.getElementById('preview-scale-wrap');
+  const mmToPx=3.7795;
+  const targetW=210*mmToPx;
+  const availW=panel.clientWidth-40;
+  const scale=Math.min(1,availW/targetW);
+  wrap.style.transform=`scale(${scale})`;
+  wrap.style.width=targetW+'px';
+  wrap.parentElement.style.height=(document.getElementById('preview-wrap').offsetHeight*scale+80)+'px';
+  document.getElementById('scale-info').textContent=`Scale ${Math.round(scale*100)}%`;
+}
+
+function initials(name){return name.split(' ').map(w=>w[0]||'').join('').toUpperCase().slice(0,2)}
+function esc(s){return (s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+// NEW TEMPLATE: CONVENTIONAL (ATS OPTIMIZED)
+function renderConventional(sv){
+  const d=state;const p=d.personal;
+  return `<div class="tpl-conventional">
+    <div class="cv-header break-avoid">
+      <div class="cv-name">${esc(p.name)}</div>
+      <div style="font-size:14px; margin-bottom:8px">${esc(p.role)}</div>
+      <div class="cv-contacts">
+        ${p.phone?`<span>${esc(p.phone)}</span>`:''}
+        ${p.email?`<span>| ${esc(p.email)}</span>`:''}
+        ${p.location?`<span>| ${esc(p.location)}</span>`:''}
+        ${p.linkedin?`<span>| ${esc(p.linkedin)}</span>`:''}
+        ${p.github?`<span>| ${esc(p.github)}</span>`:''}
+      </div>
+    </div>
+    
+    ${sv.summary&&d.summary?`<div class="cv-section break-avoid">
+      <div class="cv-section-title">Professional Summary</div>
+      <div class="cv-desc">${esc(d.summary)}</div>
+    </div>`:''}
+    
+    ${sv.experience&&d.experience.length?`<div class="cv-section">
+      <div class="cv-section-title break-avoid">Professional Experience</div>
+      ${d.experience.map(e=>`<div class="cv-entry break-avoid">
+        <div class="cv-entry-header"><span>${esc(e.title)}</span><span>${esc(e.startDate)} — ${esc(e.endDate)}</span></div>
+        <div class="cv-entry-sub"><span>${esc(e.company)}${e.location?', '+esc(e.location):''}</span></div>
+        <div class="cv-desc" style="margin-top:4px">${esc(e.description)}</div>
+      </div>`).join('')}
+    </div>`:''}
+    
+    ${sv.skills&&d.skills.length?`<div class="cv-section">
+      <div class="cv-section-title break-avoid">Technical Skills</div>
+      ${d.skills.map(cat=>`<div class="cv-skills break-avoid">
+        <div class="cv-skill-cat">${esc(cat.category)}:</div>
+        <div>${cat.items.join(', ')}</div>
+      </div>`).join('')}
+    </div>`:''}
+    
+    ${sv.education&&d.education.length?`<div class="cv-section">
+      <div class="cv-section-title break-avoid">Education</div>
+      ${d.education.map(e=>`<div class="cv-entry break-avoid" style="margin-bottom:8px">
+        <div class="cv-entry-header"><span>${esc(e.degree)}</span><span>${esc(e.year)}</span></div>
+        <div class="cv-entry-sub"><span>${esc(e.institution)}</span><span>${esc(e.grade)}</span></div>
+      </div>`).join('')}
+    </div>`:''}
+    
+    ${sv.projects&&d.projects.length?`<div class="cv-section">
+      <div class="cv-section-title break-avoid">Projects</div>
+      ${d.projects.map(p=>`<div class="cv-entry break-avoid">
+        <div class="cv-entry-header"><span>${esc(p.name)}</span></div>
+        <div class="cv-entry-sub"><span>${esc(p.tech)}</span></div>
+        <div class="cv-desc">${esc(p.description)}</div>
+      </div>`).join('')}
+    </div>`:''}
+    
+    ${sv.certifications&&d.certifications.length?`<div class="cv-section break-avoid">
+      <div class="cv-section-title">Certifications</div>
+      ${d.certifications.map(c=>`<div class="cv-entry break-avoid" style="margin-bottom:4px">
+        <strong>${esc(c.name)}</strong>, ${esc(c.issuer)} (${esc(c.year)})
+      </div>`).join('')}
+    </div>`:''}
+  </div>`;
+}
+
+function renderProfessional(sv){
+  const d=state;const p=d.personal;
+  return `<div class="tpl-professional">
+    <div class="p-header break-avoid">
+      <div class="p-name">${esc(p.name)}</div>
+      <div class="p-role">${esc(p.role)}</div>
+      <div class="p-contacts">
+        ${p.phone?`<span class="p-contact">📞 ${esc(p.phone)}</span>`:''}
+        ${p.email?`<span class="p-contact">✉ ${esc(p.email)}</span>`:''}
+        ${p.location?`<span class="p-contact">📍 ${esc(p.location)}</span>`:''}
+        ${p.linkedin?`<span class="p-contact">🔗 ${esc(p.linkedin)}</span>`:''}
+        ${p.github?`<span class="p-contact">⌥ ${esc(p.github)}</span>`:''}
+      </div>
+    </div>
+    <div class="p-body">
+      <div class="p-main">
+        ${sv.summary&&d.summary?`<div class="p-section break-avoid">
+          <div class="p-section-title">Professional Summary</div>
+          <div class="p-summary">${esc(d.summary)}</div>
+        </div>`:''}
+        ${sv.experience&&d.experience.length?`<div class="p-section">
+          <div class="p-section-title break-avoid">Work Experience</div>
+          ${d.experience.map(e=>`<div class="p-entry break-avoid">
+            <div class="p-entry-title">${esc(e.title)}</div>
+            <div class="p-entry-sub">${esc(e.company)}${e.location?' · '+esc(e.location):''}</div>
+            <div class="p-entry-date">${esc(e.startDate)} — ${esc(e.endDate)}</div>
+            <div class="p-entry-desc">${esc(e.description)}</div>
+          </div>`).join('')}
+        </div>`:''}
+        ${sv.projects&&d.projects.length?`<div class="p-section">
+          <div class="p-section-title break-avoid">Projects</div>
+          ${d.projects.map(p=>`<div class="p-entry break-avoid">
+            <div class="p-entry-title">${esc(p.name)}</div>
+            <div class="p-entry-sub">${esc(p.tech)}</div>
+            <div class="p-entry-desc">${esc(p.description)}</div>
+          </div>`).join('')}
+        </div>`:''}
+        ${sv.education&&d.education.length?`<div class="p-section">
+          <div class="p-section-title break-avoid">Education</div>
+          ${d.education.map(e=>`<div class="p-edu-entry break-avoid">
+            <div class="p-entry-title">${esc(e.degree)}</div>
+            <div class="p-entry-sub">${esc(e.institution)}</div>
+            <div class="p-entry-date">${esc(e.year)}${e.grade?' · '+esc(e.grade):''}</div>
+          </div>`).join('')}
+        </div>`:''}
+        ${sv.volunteer&&d.volunteer.length?`<div class="p-section">
+          <div class="p-section-title break-avoid">Volunteer Experience</div>
+          ${d.volunteer.map(v=>`<div class="p-entry break-avoid">
+            <div class="p-entry-title">${esc(v.role)}</div>
+            <div class="p-entry-sub">${esc(v.org)}</div>
+            <div class="p-entry-date">${esc(v.period)}</div>
+            <div class="p-entry-desc">${esc(v.description)}</div>
+          </div>`).join('')}
+        </div>`:''}
+      </div>
+      <div class="p-sidebar">
+        ${sv.expertise&&d.expertise.length?`<div class="p-section break-avoid">
+          <div class="p-section-title">Expertise</div>
+          ${d.expertise.map(e=>`<div class="p-bullet">${esc(e)}</div>`).join('')}
+        </div>`:''}
+        ${sv.skills&&d.skills.length?`<div class="p-section">
+          <div class="p-section-title break-avoid">Technical Skills</div>
+          ${d.skills.map(cat=>`<div class="p-skill-cat break-avoid">
+            <div class="p-skill-cat-name">${esc(cat.category)}</div>
+            ${cat.items.map(s=>`<span class="p-skill-tag">${esc(s)}</span>`).join('')}
+          </div>`).join('')}
+        </div>`:''}
+        ${sv.certifications&&d.certifications.length?`<div class="p-section break-avoid">
+          <div class="p-section-title">Certifications</div>
+          ${d.certifications.map(c=>`<div class="p-cert-item">
+            <div class="p-cert-name">${esc(c.name)}</div>
+            <div class="p-cert-issuer">${esc(c.issuer)} · ${esc(c.year)}</div>
+          </div>`).join('')}
+        </div>`:''}
+        ${sv.languages&&d.languages.length?`<div class="p-section break-avoid">
+          <div class="p-section-title">Languages</div>
+          ${d.languages.map(l=>`<div class="p-lang"><span>${esc(l.name)}</span><span class="p-lang-level">${esc(l.level)}</span></div>`).join('')}
+        </div>`:''}
+        ${sv.personalSkills&&d.personalSkills.length?`<div class="p-section break-avoid">
+          <div class="p-section-title">Personal Skills</div>
+          ${d.personalSkills.map(s=>`<div class="p-bullet">${esc(s)}</div>`).join('')}
+        </div>`:''}
+        ${sv.hobbies&&d.hobbies.length?`<div class="p-section break-avoid">
+          <div class="p-section-title">Hobbies</div>
+          <div>${d.hobbies.map(h=>`<span class="p-skill-tag">${esc(h)}</span>`).join('')}</div>
+        </div>`:''}
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderModern(sv){
+  const d=state;const p=d.personal;
+  return `<div class="tpl-modern">
+    <div class="m-header break-avoid">
+      <div class="m-avatar">${initials(p.name)}</div>
+      <div>
+        <div class="m-name">${esc(p.name)}</div>
+        <div class="m-role">${esc(p.role)}</div>
+        <div class="m-contacts">
+          ${p.phone?`<span class="m-contact">📞 ${esc(p.phone)}</span>`:''}
+          ${p.email?`<span class="m-contact">✉ ${esc(p.email)}</span>`:''}
+          ${p.location?`<span class="m-contact">📍 ${esc(p.location)}</span>`:''}
+          ${p.linkedin?`<span class="m-contact">🔗 ${esc(p.linkedin)}</span>`:''}
+          ${p.github?`<span class="m-contact">⌥ ${esc(p.github)}</span>`:''}
+        </div>
+      </div>
+    </div>
+    <div class="m-body">
+      ${sv.summary&&d.summary?`<div class="m-section break-avoid">
+        <div class="m-section-title">Professional Summary</div>
+        <div style="font-size:11px;color:#444;line-height:1.7">${esc(d.summary)}</div>
+      </div>`:''}
+      <div class="m-two-col">
+        <div>
+          ${sv.experience&&d.experience.length?`<div class="m-section">
+            <div class="m-section-title break-avoid">Work Experience</div>
+            ${d.experience.map(e=>`<div class="m-entry break-avoid">
+              <div class="m-entry-title">${esc(e.title)}</div>
+              <div class="m-entry-sub">${esc(e.company)}</div>
+              <div class="m-entry-date">${esc(e.startDate)} — ${esc(e.endDate)}</div>
+              <div class="m-entry-desc">${esc(e.description)}</div>
+            </div>`).join('')}
+          </div>`:''}
+          ${sv.projects&&d.projects.length?`<div class="m-section">
+            <div class="m-section-title break-avoid">Projects</div>
+            ${d.projects.map(p=>`<div class="m-entry break-avoid">
+              <div class="m-entry-title">${esc(p.name)}</div>
+              <div class="m-entry-sub">${esc(p.tech)}</div>
+              <div class="m-entry-desc">${esc(p.description)}</div>
+            </div>`).join('')}
+          </div>`:''}
+          ${sv.volunteer&&d.volunteer.length?`<div class="m-section">
+            <div class="m-section-title break-avoid">Volunteer Experience</div>
+            ${d.volunteer.map(v=>`<div class="m-entry break-avoid">
+              <div class="m-entry-title">${esc(v.role)}</div>
+              <div class="m-entry-sub">${esc(v.org)} · ${esc(v.period)}</div>
+              <div class="m-entry-desc">${esc(v.description)}</div>
+            </div>`).join('')}
+          </div>`:''}
+        </div>
+        <div>
+          ${sv.skills&&d.skills.length?`<div class="m-section">
+            <div class="m-section-title break-avoid">Technical Skills</div>
+            ${d.skills.map(cat=>`<div style="margin-bottom:10px" class="break-avoid">
+              <div style="font-size:10px;font-weight:700;color:#555;margin-bottom:5px;text-transform:uppercase">${esc(cat.category)}</div>
+              <div class="m-skill-grid">${cat.items.map(s=>`<span class="m-skill-tag">${esc(s)}</span>`).join('')}</div>
+            </div>`).join('')}
+          </div>`:''}
+          ${sv.education&&d.education.length?`<div class="m-section">
+            <div class="m-section-title break-avoid">Education</div>
+            ${d.education.map(e=>`<div class="m-entry break-avoid">
+              <div class="m-entry-title">${esc(e.degree)}</div>
+              <div class="m-entry-sub">${esc(e.institution)}</div>
+              <div class="m-entry-date">${esc(e.year)}${e.grade?' · '+esc(e.grade):''}</div>
+            </div>`).join('')}
+          </div>`:''}
+          ${sv.certifications&&d.certifications.length?`<div class="m-section break-avoid">
+            <div class="m-section-title">Certifications</div>
+            ${d.certifications.map(c=>`<div class="m-cert">
+              <div class="m-cert-name">${esc(c.name)}</div>
+              <div class="m-cert-org">${esc(c.issuer)} · ${esc(c.year)}</div>
+            </div>`).join('')}
+          </div>`:''}
+          ${sv.languages&&d.languages.length?`<div class="m-section break-avoid">
+            <div class="m-section-title">Languages</div>
+            ${d.languages.map(l=>`<div class="m-bullet">${esc(l.name)} — ${esc(l.level)}</div>`).join('')}
+          </div>`:''}
+          ${sv.expertise&&d.expertise.length?`<div class="m-section break-avoid">
+            <div class="m-section-title">Expertise</div>
+            ${d.expertise.map(e=>`<div class="m-bullet">${esc(e)}</div>`).join('')}
+          </div>`:''}
+          ${sv.personalSkills&&d.personalSkills.length?`<div class="m-section break-avoid">
+            <div class="m-section-title">Personal Skills</div>
+            <div class="m-skill-grid">${d.personalSkills.map(s=>`<span class="m-skill-tag">${esc(s)}</span>`).join('')}</div>
+          </div>`:''}
+          ${sv.hobbies&&d.hobbies.length?`<div class="m-section break-avoid">
+            <div class="m-section-title">Hobbies</div>
+            <div class="m-skill-grid">${d.hobbies.map(h=>`<span class="m-skill-tag">${esc(h)}</span>`).join('')}</div>
+          </div>`:''}
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderCreative(sv){
+  const d=state;const p=d.personal;
+  return `<div class="tpl-creative">
+    <div class="c-sidebar">
+      <div class="c-avatar-area">
+        <div class="c-avatar">${initials(p.name)}</div>
+        <div class="c-name-small">${esc(p.name)}</div>
+        <div class="c-role-small">${esc(p.role)}</div>
+      </div>
+      <div class="c-sidebar-section break-avoid">
+        <div class="c-sidebar-title">Contact</div>
+        ${p.phone?`<div class="c-contact-item">📞 ${esc(p.phone)}</div>`:''}
+        ${p.email?`<div class="c-contact-item">✉ ${esc(p.email)}</div>`:''}
+        ${p.location?`<div class="c-contact-item">📍 ${esc(p.location)}</div>`:''}
+        ${p.linkedin?`<div class="c-contact-item">🔗 ${esc(p.linkedin)}</div>`:''}
+        ${p.github?`<div class="c-contact-item">⌥ ${esc(p.github)}</div>`:''}
+      </div>
+      ${sv.skills&&d.skills.length?`<div class="c-sidebar-section">
+        <div class="c-sidebar-title break-avoid">Technical Skills</div>
+        ${d.skills.slice(0,3).map(cat=>`<div style="margin-bottom:10px" class="break-avoid">
+          <div style="font-size:9px;font-weight:700;opacity:0.7;margin-bottom:5px;letter-spacing:0.8px;text-transform:uppercase">${esc(cat.category)}</div>
+          ${cat.items.map(s=>`<div class="c-contact-item" style="font-size:10px">${esc(s)}</div>`).join('')}
+        </div>`).join('')}
+      </div>`:''}
+      ${sv.languages&&d.languages.length?`<div class="c-sidebar-section break-avoid">
+        <div class="c-sidebar-title">Languages</div>
+        ${d.languages.map(l=>`<div class="c-lang-item">${esc(l.name)}<div class="c-lang-level">${esc(l.level)}</div></div>`).join('')}
+      </div>`:''}
+      ${sv.personalSkills&&d.personalSkills.length?`<div class="c-sidebar-section break-avoid">
+        <div class="c-sidebar-title">Personal Skills</div>
+        ${d.personalSkills.map(s=>`<div class="c-contact-item" style="font-size:10px">• ${esc(s)}</div>`).join('')}
+      </div>`:''}
+      ${sv.hobbies&&d.hobbies.length?`<div class="c-sidebar-section break-avoid">
+        <div class="c-sidebar-title">Hobbies</div>
+        ${d.hobbies.map(h=>`<div class="c-contact-item" style="font-size:10px">• ${esc(h)}</div>`).join('')}
+      </div>`:''}
+    </div>
+    <div class="c-main">
+      <div class="c-main-name break-avoid">${esc(p.name)}</div>
+      <div class="c-main-role break-avoid">${esc(p.role)}</div>
+      ${sv.summary&&d.summary?`<div class="c-section break-avoid">
+        <div class="c-section-title">Profile</div>
+        <div style="font-size:11px;color:#444;line-height:1.7">${esc(d.summary)}</div>
+      </div>`:''}
+      ${sv.expertise&&d.expertise.length?`<div class="c-section break-avoid">
+        <div class="c-section-title">Expertise</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px">${d.expertise.map(e=>`<span class="c-tag">${esc(e)}</span>`).join('')}</div>
+      </div>`:''}
+      ${sv.experience&&d.experience.length?`<div class="c-section">
+        <div class="c-section-title break-avoid">Work Experience</div>
+        ${d.experience.map(e=>`<div class="c-entry break-avoid">
+          <div class="c-entry-title">${esc(e.title)}</div>
+          <div class="c-entry-sub">${esc(e.company)}${e.location?' · '+esc(e.location):''}</div>
+          <div class="c-entry-date">${esc(e.startDate)} — ${esc(e.endDate)}</div>
+          <div class="c-entry-desc">${esc(e.description)}</div>
+        </div>`).join('')}
+      </div>`:''}
+      ${sv.education&&d.education.length?`<div class="c-section">
+        <div class="c-section-title break-avoid">Education</div>
+        ${d.education.map(e=>`<div class="c-entry break-avoid">
+          <div class="c-entry-title">${esc(e.degree)}</div>
+          <div class="c-entry-sub">${esc(e.institution)}</div>
+          <div class="c-entry-date">${esc(e.year)}${e.grade?' · '+esc(e.grade):''}</div>
+        </div>`).join('')}
+      </div>`:''}
+      ${sv.projects&&d.projects.length?`<div class="c-section">
+        <div class="c-section-title break-avoid">Projects</div>
+        ${d.projects.map(p=>`<div class="c-entry break-avoid">
+          <div class="c-entry-title">${esc(p.name)}</div>
+          <div class="c-entry-sub">${esc(p.tech)}</div>
+          <div class="c-entry-desc">${esc(p.description)}</div>
+        </div>`).join('')}
+      </div>`:''}
+      ${sv.certifications&&d.certifications.length?`<div class="c-section break-avoid">
+        <div class="c-section-title">Certifications</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">
+          ${d.certifications.map(c=>`<span class="c-tag">${esc(c.name)} <span style="opacity:0.6;font-size:9px">${esc(c.issuer)}</span></span>`).join('')}
+        </div>
+      </div>`:''}
+      ${sv.volunteer&&d.volunteer.length?`<div class="c-section">
+        <div class="c-section-title break-avoid">Volunteer Experience</div>
+        ${d.volunteer.map(v=>`<div class="c-entry break-avoid">
+          <div class="c-entry-title">${esc(v.role)}</div>
+          <div class="c-entry-sub">${esc(v.org)} · ${esc(v.period)}</div>
+          <div class="c-entry-desc">${esc(v.description)}</div>
+        </div>`).join('')}
+      </div>`:''}
+    </div>
+  </div>`;
+}
+
+// =============================================
+// IMPORT / EXPORT
+// =============================================
+function exportJSON(){
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=`resume_${(state.personal.name||'export').replace(/\s+/g,'_')}.json`;
+  a.click();showToast('JSON exported!');
+}
+function importJSON(){document.getElementById('json-import-input').click();}
+function handleJSONImport(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const imported=JSON.parse(ev.target.result);
+      if(!imported.personal)throw new Error('Invalid format');
+      state=imported;save();renderEditor();renderPreview();buildSidebar();
+      showToast('Resume imported successfully!');
+    }catch(err){alert('Invalid JSON file: '+err.message);}
+  };
+  reader.readAsText(file);
+  e.target.value='';
+}
+
+// =============================================
+// PDF EXPORT (UPDATED CONFIG FOR PAGE BREAKS)
+// =============================================
+function exportPDF(){
+  showToast('Generating PDF...',4000);
+  const el=document.getElementById('resume-preview');
+  
+  const scaleWrap=document.getElementById('preview-scale-wrap');
+  const origTransform=scaleWrap.style.transform;
+  scaleWrap.style.transform='scale(1)';
+  
+  const opt={
+    margin:[0,0,0,0],
+    filename:`${(state.personal.name||'resume').replace(/\s+/g,'_')}_resume.pdf`,
+    image:{type:'jpeg',quality:0.98},
+    html2canvas:{scale:2,useCORS:true,letterRendering:true},
+    jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},
+    pagebreak:{mode:['css','legacy']} // Relies on our .break-avoid CSS classes
+  };
+  
+  html2pdf().set(opt).from(el).save().then(()=>{
+    scaleWrap.style.transform=origTransform;
+    showToast('PDF downloaded!');
+  }).catch(()=>{
+    scaleWrap.style.transform=origTransform;
+    showToast('PDF export failed. Try again.');
+  });
+}
+
+// =============================================
+// TEMPLATE SELECT BINDING
+// =============================================
+document.getElementById('template-select').addEventListener('change',function(){
+  switchTemplate(this.value);
+});
+
+// =============================================
+// INIT
+// =============================================
+function init(){
+  document.documentElement.setAttribute('data-theme',isDark?'dark':'light');
+  document.getElementById('dark-btn').textContent=isDark?'🌙':'☀️';
+  document.documentElement.style.setProperty('--accent',accentColor);
+  buildSidebar();
+  renderEditor();
+  renderPreview();
+  window.addEventListener('resize',scalePreview);
+}
+
+init();
+</script>
+</body>
+</html>
