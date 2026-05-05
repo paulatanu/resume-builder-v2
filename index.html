@@ -4,7 +4,6 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>ResumeForge — Professional Resume Builder</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -246,8 +245,8 @@ textarea{resize:vertical;min-height:90px}
 .tpl-conventional .cv-entry{margin-bottom:12px}
 .tpl-conventional .cv-entry-header{display:flex;justify-content:space-between;align-items:baseline;font-weight:bold;font-size:13px}
 .tpl-conventional .cv-entry-sub{display:flex;justify-content:space-between;font-style:italic;margin-bottom:6px;font-size:12px}
-.tpl-conventional .cv-skills{display:grid;grid-template-columns:1fr 3fr;gap:10px;margin-bottom:6px}
-.tpl-conventional .cv-skill-cat{font-weight:bold}
+.tpl-conventional .cv-skills{display:flex; gap:10px; margin-bottom:6px}
+.tpl-conventional .cv-skill-cat{font-weight:bold; min-width:120px;}
 .tpl-conventional .cv-bullet{margin-bottom:4px;padding-left:16px;position:relative;line-height:1.5}
 .tpl-conventional .cv-bullet:before{content:'•';position:absolute;left:0}
 .tpl-conventional .cv-desc{line-height:1.5;text-align:justify}
@@ -277,12 +276,12 @@ select option{background:var(--surface2);color:var(--text)}
 .color-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 
 /* =========================================
-   NATIVE PRINT CSS (REMOVING HEADERS/FOOTERS)
+   NATIVE PRINT CSS (CRITICAL MULTI-PAGE FIX)
 ========================================= */
 @media print {
   @page { 
-    margin: 0 !important; /* This strictly disables the browser's native Date/Title/URL text */
     size: A4 portrait; 
+    margin: 20mm 15mm; /* TRUE WORD-LIKE MARGINS FOR EVERY PAGE */
   }
   
   html, body { 
@@ -296,8 +295,8 @@ select option{background:var(--surface2);color:var(--text)}
     padding: 0 !important;
   }
   
-  /* Hide the UI elements */
-  #topbar, #sidebar, #editor, .preview-toolbar, .toast, input[type="file"] { 
+  /* Hide the UI tools entirely */
+  #app > *:not(#preview-panel) { 
     display: none !important; 
   }
   
@@ -307,6 +306,7 @@ select option{background:var(--surface2);color:var(--text)}
     height: auto !important; 
     overflow: visible !important; 
   }
+  
   #preview-panel { 
     display: block !important; 
     padding: 0 !important; 
@@ -316,19 +316,21 @@ select option{background:var(--surface2);color:var(--text)}
     height: auto !important; 
   }
   
-  /* Strip scaling and apply custom padding inside the wrap so content isn't touching paper edges */
+  /* Strip ALL UI scaling boundaries */
   #preview-scale-wrap { 
     transform: none !important; 
-    width: 100% !important; 
+    width: auto !important; 
     margin: 0 !important; 
+    padding: 0 !important;
   }
+  
   #preview-wrap { 
-    padding: 15mm 0 !important; /* Adds natural whitespace to replace the removed browser margins */
     box-shadow: none !important; 
     border-radius: 0 !important; 
-    width: 100% !important; 
-    max-width: 210mm !important;
-    margin: 0 auto !important; 
+    width: auto !important; 
+    max-width: none !important;
+    margin: 0 !important; 
+    padding: 0 !important; /* Margins are handled by @page now! */
     min-height: auto !important;
     height: auto !important;
     overflow: visible !important;
@@ -1317,8 +1319,24 @@ function renderCreative(sv){
 // NATIVE PDF EXPORT (REPLACES HTML2PDF)
 // =============================================
 function exportPDF(){
-  showToast('Opening print dialog. Select "Save as PDF" for vector quality.', 4000);
-  window.print();
+  // 1. Temporarily strip scaling transforms so the browser doesn't rasterize to an image
+  const scaleWrap = document.getElementById('preview-scale-wrap');
+  const origTransform = scaleWrap.style.transform;
+  const origWidth = scaleWrap.style.width;
+  
+  scaleWrap.style.transform = 'none';
+  scaleWrap.style.width = '100%';
+
+  showToast('Opening print dialog. Uncheck "Headers/Footers" and select "Save as PDF"!', 5000);
+  
+  // 2. Delay slightly to let the DOM settle, then print
+  setTimeout(() => {
+    window.print();
+    
+    // 3. Restore the preview scale immediately after print window closes
+    scaleWrap.style.transform = origTransform;
+    scaleWrap.style.width = origWidth;
+  }, 150);
 }
 
 // =============================================
