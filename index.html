@@ -152,14 +152,14 @@ textarea{resize:vertical;min-height:90px}
 
 /* ============ TEMPLATE 1: PROFESSIONAL ============ */
 .tpl-professional{font-family:var(--resume-font, 'Times New Roman', Times, serif);font-size:12px;line-height:1.5;color:#111;padding:0;background:#fff}
-.tpl-professional .p-header{background:#fff;color:#111;padding:32px 36px 16px;border-bottom:2px solid #222}
+.tpl-professional .p-header{background:#fff;color:#111;padding:12px 20px 16px;border-bottom:2px solid #222}
 .tpl-professional .p-name{font-size:32px;font-weight:bold;letter-spacing:1px;margin-bottom:4px;text-transform:uppercase}
 .tpl-professional .p-role{font-size:14px;color:#444;font-style:italic;margin-bottom:12px}
 .tpl-professional .p-contacts{display:flex;flex-wrap:wrap;gap:14px}
 .tpl-professional .p-contact{display:flex;align-items:center;gap:5px;font-size:12px;color:#444}
 .tpl-professional .p-body{display:grid;grid-template-columns:2fr 1fr;gap:0}
-.tpl-professional .p-main{padding:24px 28px}
-.tpl-professional .p-sidebar{padding:24px 20px;background:#fdfdfd;border-left:1px solid #ddd}
+.tpl-professional .p-main{padding:16px 20px}
+.tpl-professional .p-sidebar{padding:16px 20px;background:#fdfdfd;border-left:1px solid #ddd}
 .tpl-professional .p-section{margin-bottom:20px}
 .tpl-professional .p-section-title{font-size:14px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:#222;border-bottom:1px solid #ccc;padding-bottom:5px;margin-bottom:12px}
 .tpl-professional .p-entry{margin-bottom:14px}
@@ -186,13 +186,13 @@ textarea{resize:vertical;min-height:90px}
 
 /* ============ TEMPLATE 2: MODERN (ACCENT COLOR ENABLED) ============ */
 .tpl-modern{font-family:var(--resume-font, 'DM Sans', sans-serif);font-size:11px;color:#1e1e2e}
-.tpl-modern .m-header{padding:28px 32px;display:flex;align-items:flex-start;gap:24px;border-bottom:3px solid var(--accent)}
+.tpl-modern .m-header{padding:16px 20px;display:flex;align-items:flex-start;gap:24px;border-bottom:3px solid var(--accent)}
 .tpl-modern .m-avatar{width:70px;height:70px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:#fff;flex-shrink:0}
 .tpl-modern .m-name{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;letter-spacing:-0.5px;color:#1e1e2e}
 .tpl-modern .m-role{font-size:12px;color:var(--accent);font-weight:600;margin:3px 0 10px}
 .tpl-modern .m-contacts{display:flex;flex-wrap:wrap;gap:10px}
 .tpl-modern .m-contact{font-size:10px;color:#666;display:flex;align-items:center;gap:4px;background:#f5f6fa;padding:3px 8px;border-radius:20px}
-.tpl-modern .m-body{padding:24px 32px}
+.tpl-modern .m-body{padding:16px 20px}
 .tpl-modern .m-section{margin-bottom:20px}
 .tpl-modern .m-section-title{display:flex;align-items:center;gap:8px;font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
 .tpl-modern .m-section-title:after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent),transparent);opacity:0.4}
@@ -220,7 +220,7 @@ textarea{resize:vertical;min-height:90px}
 .tpl-creative .c-sidebar-section{padding:16px 16px 8px}
 .tpl-creative .c-sidebar-title{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;opacity:0.7;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid rgba(255,255,255,0.25)}
 .tpl-creative .c-contact-item{font-size:10px;opacity:0.9;margin-bottom:5px;word-break:break-all;line-height:1.4}
-.tpl-creative .c-main{background:#fff;color:#1e1e2e;padding:28px 24px}
+.tpl-creative .c-main{background:#fff;color:#1e1e2e;padding:16px 20px}
 .tpl-creative .c-main-name{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;letter-spacing:-0.5px;color:#1e1e2e}
 .tpl-creative .c-main-role{font-size:12px;color:var(--accent);font-weight:600;margin-bottom:16px}
 .tpl-creative .c-section{margin-bottom:18px}
@@ -236,7 +236,7 @@ textarea{resize:vertical;min-height:90px}
 .tpl-creative .c-bullet:before{content:'◆';position:absolute;left:0;color:var(--accent);font-size:6px;top:3px}
 
 /* ============ TEMPLATE 4: CONVENTIONAL ============ */
-.tpl-conventional{font-family:var(--resume-font, 'Times New Roman', Times, serif);font-size:12px;color:#000;background:#fff;padding:36px;max-width:210mm;margin:0 auto}
+.tpl-conventional{font-family:var(--resume-font, 'Times New Roman', Times, serif);font-size:12px;color:#000;background:#fff;max-width:210mm;margin:0 auto}
 .tpl-conventional .cv-header{text-align:center;margin-bottom:20px}
 .tpl-conventional .cv-name{font-size:26px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
 .tpl-conventional .cv-contacts{display:flex;justify-content:center;flex-wrap:wrap;gap:12px;font-size:12px}
@@ -276,12 +276,12 @@ select option{background:var(--surface2);color:var(--text)}
 .color-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 
 /* =========================================
-   NATIVE PRINT CSS (CRITICAL MULTI-PAGE FIX)
+   NATIVE PRINT CSS - STRICT 1CM MARGIN FIX
 ========================================= */
 @media print {
   @page { 
     size: A4 portrait; 
-    margin: 20mm 15mm; /* TRUE WORD-LIKE MARGINS FOR EVERY PAGE */
+    margin: 1cm 1.5cm !important; /* EXACTLY 1CM TOP/BOTTOM, 1.5CM SIDES FOR ALL PAGES */
   }
   
   html, body { 
@@ -330,7 +330,7 @@ select option{background:var(--surface2);color:var(--text)}
     width: auto !important; 
     max-width: none !important;
     margin: 0 !important; 
-    padding: 0 !important; /* Margins are handled by @page now! */
+    padding: 0 !important; /* Margins are handled purely by @page now */
     min-height: auto !important;
     height: auto !important;
     overflow: visible !important;
@@ -1319,7 +1319,6 @@ function renderCreative(sv){
 // NATIVE PDF EXPORT (REPLACES HTML2PDF)
 // =============================================
 function exportPDF(){
-  // 1. Temporarily strip scaling transforms so the browser doesn't rasterize to an image
   const scaleWrap = document.getElementById('preview-scale-wrap');
   const origTransform = scaleWrap.style.transform;
   const origWidth = scaleWrap.style.width;
@@ -1327,13 +1326,11 @@ function exportPDF(){
   scaleWrap.style.transform = 'none';
   scaleWrap.style.width = '100%';
 
-  showToast('Opening print dialog. Uncheck "Headers/Footers" and select "Save as PDF"!', 5000);
+  showToast('REMINDER: Change Destination to "Save as PDF" and Uncheck "Headers and Footers"!', 6000);
   
-  // 2. Delay slightly to let the DOM settle, then print
   setTimeout(() => {
     window.print();
     
-    // 3. Restore the preview scale immediately after print window closes
     scaleWrap.style.transform = origTransform;
     scaleWrap.style.width = origWidth;
   }, 150);
