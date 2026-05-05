@@ -4,6 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>ResumeForge — Professional Resume Builder</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -276,24 +277,56 @@ select option{background:var(--surface2);color:var(--text)}
 .color-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 
 /* =========================================
-   NATIVE PRINT CSS (MAGIC FOR PDF VECTOR EXPORT)
+   NATIVE PRINT CSS (CRITICAL PAGE BREAK FIX)
 ========================================= */
 @media print {
   @page { margin: 12mm 0; size: A4 portrait; }
-  body { background: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; margin: 0; padding: 0; }
   
-  /* Hide the UI */
+  /* OVERRIDE OVERFLOW HIDDEN SO ALL PAGES RENDER */
+  html, body { 
+    height: auto !important; 
+    min-height: auto !important;
+    overflow: visible !important; 
+    background: #fff !important; 
+    -webkit-print-color-adjust: exact; 
+    print-color-adjust: exact; 
+  }
+  
+  /* Hide the UI elements */
   #topbar, #sidebar, #editor, .preview-toolbar, .toast, input[type="file"] { 
     display: none !important; 
   }
   
-  /* Reset the preview area perfectly to the page */
-  #app { display: block !important; height: auto !important; overflow: visible !important; }
-  #preview-panel { display: block !important; padding: 0 !important; margin: 0 !important; background: transparent !important; overflow: visible !important; height: auto !important; }
+  /* Reset layout constraints so print engine sees whole document */
+  #app { 
+    display: block !important; 
+    height: auto !important; 
+    overflow: visible !important; 
+  }
+  #preview-panel { 
+    display: block !important; 
+    padding: 0 !important; 
+    margin: 0 !important; 
+    background: transparent !important; 
+    overflow: visible !important; 
+    height: auto !important; 
+  }
   
-  /* Strip all scaling from the live preview view */
-  #preview-scale-wrap { transform: none !important; width: 100% !important; margin: 0 !important; }
-  #preview-wrap { box-shadow: none !important; border-radius: 0 !important; width: 100% !important; margin: 0 !important; min-height: auto !important;}
+  /* Strip all UI scaling from the live preview wrapper */
+  #preview-scale-wrap { 
+    transform: none !important; 
+    width: 100% !important; 
+    margin: 0 !important; 
+  }
+  #preview-wrap { 
+    box-shadow: none !important; 
+    border-radius: 0 !important; 
+    width: 100% !important; 
+    margin: 0 !important; 
+    min-height: auto !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
   
   /* Apply page breaks properly */
   .break-avoid { break-inside: avoid !important; page-break-inside: avoid !important; }
@@ -1279,7 +1312,6 @@ function renderCreative(sv){
 // =============================================
 function exportPDF(){
   showToast('Opening print dialog. Select "Save as PDF" for vector quality.', 4000);
-  // Using native browser print creates pure vector PDFs, perfect for ATS!
   window.print();
 }
 
