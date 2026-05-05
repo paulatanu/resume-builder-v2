@@ -277,12 +277,14 @@ select option{background:var(--surface2);color:var(--text)}
 .color-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 
 /* =========================================
-   NATIVE PRINT CSS (CRITICAL PAGE BREAK FIX)
+   NATIVE PRINT CSS (REMOVING HEADERS/FOOTERS)
 ========================================= */
 @media print {
-  @page { margin: 12mm 0; size: A4 portrait; }
+  @page { 
+    margin: 0 !important; /* This strictly disables the browser's native Date/Title/URL text */
+    size: A4 portrait; 
+  }
   
-  /* OVERRIDE OVERFLOW HIDDEN SO ALL PAGES RENDER */
   html, body { 
     height: auto !important; 
     min-height: auto !important;
@@ -290,6 +292,8 @@ select option{background:var(--surface2);color:var(--text)}
     background: #fff !important; 
     -webkit-print-color-adjust: exact; 
     print-color-adjust: exact; 
+    margin: 0 !important;
+    padding: 0 !important;
   }
   
   /* Hide the UI elements */
@@ -312,17 +316,19 @@ select option{background:var(--surface2);color:var(--text)}
     height: auto !important; 
   }
   
-  /* Strip all UI scaling from the live preview wrapper */
+  /* Strip scaling and apply custom padding inside the wrap so content isn't touching paper edges */
   #preview-scale-wrap { 
     transform: none !important; 
     width: 100% !important; 
     margin: 0 !important; 
   }
   #preview-wrap { 
+    padding: 15mm 0 !important; /* Adds natural whitespace to replace the removed browser margins */
     box-shadow: none !important; 
     border-radius: 0 !important; 
     width: 100% !important; 
-    margin: 0 !important; 
+    max-width: 210mm !important;
+    margin: 0 auto !important; 
     min-height: auto !important;
     height: auto !important;
     overflow: visible !important;
