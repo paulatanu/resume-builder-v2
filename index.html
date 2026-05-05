@@ -4,7 +4,6 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>ResumeForge — Professional Resume Builder</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -15,8 +14,6 @@
   --surface3: #252831;
   --border: #2e3140;
   --accent: #6c63ff;
-  --accent2: #ff6b9d;
-  --accent3: #43e97b;
   --text: #e8eaf0;
   --text2: #9499b0;
   --text3: #5c6180;
@@ -39,9 +36,8 @@
   --shadow: 0 4px 24px rgba(0,0,0,0.1);
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;font-family:var(--font-body);background:var(--bg);color:var(--text);font-size:14px;line-height:1.6}
+html,body{height:100%;font-family:var(--font-body);background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;overflow:hidden;}
 
-/* FIXED SCROLLBAR FOR BETTER VISIBILITY */
 ::-webkit-scrollbar{width:10px;height:10px}
 ::-webkit-scrollbar-track{background:var(--surface)}
 ::-webkit-scrollbar-thumb{background:var(--text3);border-radius:5px;border:2px solid var(--surface)}
@@ -50,13 +46,38 @@ html,body{height:100%;font-family:var(--font-body);background:var(--bg);color:va
 /* LAYOUT */
 #app{display:grid;grid-template-columns:240px 1fr 1fr;grid-template-rows:56px 1fr;height:100vh;overflow:hidden}
 #topbar{grid-column:1/-1;grid-row:1;display:flex;align-items:center;gap:12px;padding:0 20px;background:var(--surface);border-bottom:1px solid var(--border);z-index:100}
-#sidebar{grid-column:1;grid-row:2;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column}
-#editor{grid-column:2;grid-row:2;overflow-y:auto;padding:24px;background:var(--bg)}
-#preview-panel{grid-column:3;grid-row:2;overflow-y:auto;background:var(--surface2);padding:20px;display:flex;flex-direction:column;align-items:center}
+
+#sidebar{
+  grid-column:1;
+  grid-row:2;
+  background:var(--surface);
+  border-right:1px solid var(--border);
+  overflow-y:auto;
+  display:block;
+  height:calc(100vh - 56px);
+  padding-bottom: 24px;
+}
+#editor{
+  grid-column:2;
+  grid-row:2;
+  overflow-y:auto;
+  padding:24px;
+  background:var(--bg);
+  height:calc(100vh - 56px);
+}
+#preview-panel{
+  grid-column:3;
+  grid-row:2;
+  overflow-y:auto;
+  background:var(--surface2);
+  padding:20px;
+  display:block;
+  text-align:center;
+  height:calc(100vh - 56px);
+}
 
 /* TOPBAR */
 .logo{font-family:var(--font-head);font-size:18px;font-weight:800;color:var(--accent);letter-spacing:-0.5px}
-.logo span{color:var(--accent2)}
 .tb-spacer{flex:1}
 .tb-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:6px 14px;border-radius:var(--r2);cursor:pointer;font-family:var(--font-body);font-size:13px;font-weight:500;transition:all .15s;display:flex;align-items:center;gap:6px}
 .tb-btn:hover{background:var(--surface3);border-color:var(--accent)}
@@ -71,11 +92,17 @@ html,body{height:100%;font-family:var(--font-body);background:var(--bg);color:va
 .sidebar-item:hover{color:var(--text);background:var(--surface2)}
 .sidebar-item.active{color:var(--accent);background:var(--surface2);border-left-color:var(--accent)}
 .sidebar-item .si-icon{font-size:16px;width:20px;text-align:center}
-.sidebar-bottom{margin-top:auto;padding:16px;border-top:1px solid var(--border)}
+
+.sidebar-bottom{
+  padding:16px;
+  border-top:1px solid var(--border);
+  margin-top:16px; 
+}
 .template-pills{display:flex;flex-direction:column;gap:6px;margin-top:8px}
 .tpl-pill{padding:8px 12px;border-radius:var(--r2);cursor:pointer;font-size:12px;font-weight:600;border:1.5px solid var(--border);background:transparent;color:var(--text2);transition:all .15s;font-family:var(--font-body);text-align:left}
 .tpl-pill:hover{border-color:var(--accent);color:var(--accent)}
 .tpl-pill.active{border-color:var(--accent);background:var(--accent);color:#fff}
+.font-select-ui{width:100%; background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:var(--r2);font-family:var(--font-body);font-size:12px;outline:none;cursor:pointer;}
 
 /* EDITOR CARDS */
 .ed-header{display:flex;align-items:center;gap:10px;margin-bottom:20px}
@@ -115,15 +142,16 @@ textarea{resize:vertical;min-height:90px}
 .toggle input:checked+.toggle-slider:before{transform:translateX(16px)}
 
 /* PREVIEW */
+#preview-scale-wrap{transform-origin:top center;width:210mm;margin:0 auto;text-align:left;}
 #preview-wrap{width:210mm;min-height:297mm;background:#fff;color:#1a1c2e;box-shadow:var(--shadow);border-radius:4px;overflow:hidden;transform-origin:top center;flex-shrink:0}
-.preview-toolbar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:16px;width:100%;max-width:210mm}
+.preview-toolbar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:16px;width:100%;max-width:210mm;margin-left:auto;margin-right:auto;}
 .scale-info{font-size:11px;color:var(--text3);font-family:var(--font-mono)}
 
 /* FIX: AVOID PAGE BREAKS */
 .break-avoid { break-inside: avoid; page-break-inside: avoid; }
 
-/* ============ TEMPLATE 1: PROFESSIONAL (UPDATED) ============ */
-.tpl-professional{font-family:'Times New Roman', Times, serif;font-size:12px;line-height:1.5;color:#111;padding:0;background:#fff}
+/* ============ TEMPLATE 1: PROFESSIONAL ============ */
+.tpl-professional{font-family:var(--resume-font, 'Times New Roman', Times, serif);font-size:12px;line-height:1.5;color:#111;padding:0;background:#fff}
 .tpl-professional .p-header{background:#fff;color:#111;padding:32px 36px 16px;border-bottom:2px solid #222}
 .tpl-professional .p-name{font-size:32px;font-weight:bold;letter-spacing:1px;margin-bottom:4px;text-transform:uppercase}
 .tpl-professional .p-role{font-size:14px;color:#444;font-style:italic;margin-bottom:12px}
@@ -156,35 +184,35 @@ textarea{resize:vertical;min-height:90px}
 .tpl-professional .p-edu-entry{margin-bottom:10px}
 .tpl-professional .p-summary{font-size:12px;color:#222;line-height:1.6;text-align:justify}
 
-/* ============ TEMPLATE 2: MODERN ============ */
-.tpl-modern{font-family:'DM Sans',sans-serif;font-size:11px;color:#1e1e2e}
-.tpl-modern .m-header{padding:28px 32px;display:flex;align-items:flex-start;gap:24px;border-bottom:3px solid #43e97b}
-.tpl-modern .m-avatar{width:70px;height:70px;background:linear-gradient(135deg,#43e97b,#38f9d7);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:#fff;flex-shrink:0}
+/* ============ TEMPLATE 2: MODERN (ACCENT COLOR ENABLED) ============ */
+.tpl-modern{font-family:var(--resume-font, 'DM Sans', sans-serif);font-size:11px;color:#1e1e2e}
+.tpl-modern .m-header{padding:28px 32px;display:flex;align-items:flex-start;gap:24px;border-bottom:3px solid var(--accent)}
+.tpl-modern .m-avatar{width:70px;height:70px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:#fff;flex-shrink:0}
 .tpl-modern .m-name{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;letter-spacing:-0.5px;color:#1e1e2e}
-.tpl-modern .m-role{font-size:12px;color:#43c97b;font-weight:600;margin:3px 0 10px}
+.tpl-modern .m-role{font-size:12px;color:var(--accent);font-weight:600;margin:3px 0 10px}
 .tpl-modern .m-contacts{display:flex;flex-wrap:wrap;gap:10px}
-.tpl-modern .m-contact{font-size:10px;color:#666;display:flex;align-items:center;gap:4px;background:#f0faf5;padding:3px 8px;border-radius:20px}
+.tpl-modern .m-contact{font-size:10px;color:#666;display:flex;align-items:center;gap:4px;background:#f5f6fa;padding:3px 8px;border-radius:20px}
 .tpl-modern .m-body{padding:24px 32px}
 .tpl-modern .m-section{margin-bottom:20px}
-.tpl-modern .m-section-title{display:flex;align-items:center;gap:8px;font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#43c97b;margin-bottom:12px}
-.tpl-modern .m-section-title:after{content:'';flex:1;height:1px;background:linear-gradient(90deg,#43e97b44,transparent)}
-.tpl-modern .m-entry{margin-bottom:14px;padding-left:12px;border-left:2px solid #43e97b22}
+.tpl-modern .m-section-title{display:flex;align-items:center;gap:8px;font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+.tpl-modern .m-section-title:after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent),transparent);opacity:0.4}
+.tpl-modern .m-entry{margin-bottom:14px;padding-left:12px;border-left:2px solid var(--accent)}
 .tpl-modern .m-entry-title{font-weight:700;font-size:12px;color:#1e1e2e}
-.tpl-modern .m-entry-sub{color:#43c97b;font-size:11px;font-weight:500}
+.tpl-modern .m-entry-sub{color:var(--accent);font-size:11px;font-weight:500}
 .tpl-modern .m-entry-date{font-size:10px;color:#999;margin-bottom:4px;font-family:'DM Mono',monospace}
 .tpl-modern .m-entry-desc{font-size:11px;color:#555;line-height:1.65}
 .tpl-modern .m-skill-grid{display:flex;flex-wrap:wrap;gap:5px}
-.tpl-modern .m-skill-tag{padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;background:#f0faf5;color:#2a8a5a;border:1px solid #43e97b44}
+.tpl-modern .m-skill-tag{padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;background:#f5f6fa;color:var(--accent);border:1px solid var(--accent)}
 .tpl-modern .m-bullet{font-size:11px;color:#444;padding-left:14px;position:relative;margin-bottom:3px}
-.tpl-modern .m-bullet:before{content:'●';position:absolute;left:0;color:#43e97b;font-size:7px;top:3px}
+.tpl-modern .m-bullet:before{content:'●';position:absolute;left:0;color:var(--accent);font-size:7px;top:3px}
 .tpl-modern .m-two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-.tpl-modern .m-cert{background:#f8fffe;border:1px solid #43e97b33;border-radius:5px;padding:8px 10px;margin-bottom:6px}
+.tpl-modern .m-cert{background:#fff;border:1px solid var(--accent);border-radius:5px;padding:8px 10px;margin-bottom:6px}
 .tpl-modern .m-cert-name{font-weight:600;font-size:11px;color:#1e1e2e}
-.tpl-modern .m-cert-org{font-size:10px;color:#43c97b}
+.tpl-modern .m-cert-org{font-size:10px;color:var(--accent)}
 
-/* ============ TEMPLATE 3: CREATIVE ============ */
-.tpl-creative{font-family:'DM Sans',sans-serif;font-size:11px;display:grid;grid-template-columns:160px 1fr;min-height:297mm}
-.tpl-creative .c-sidebar{background:linear-gradient(180deg,#ff6b9d 0%,#c44dff 100%);color:#fff;padding:0}
+/* ============ TEMPLATE 3: CREATIVE (ACCENT COLOR ENABLED) ============ */
+.tpl-creative{font-family:var(--resume-font, 'DM Sans', sans-serif);font-size:11px;display:grid;grid-template-columns:160px 1fr;min-height:297mm}
+.tpl-creative .c-sidebar{background:var(--accent);color:#fff;padding:0}
 .tpl-creative .c-avatar-area{padding:28px 20px 20px;text-align:center;background:rgba(0,0,0,0.15)}
 .tpl-creative .c-avatar{width:64px;height:64px;background:rgba(255,255,255,0.25);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:#fff;margin:0 auto 12px;border:3px solid rgba(255,255,255,0.5)}
 .tpl-creative .c-name-small{font-family:'Syne',sans-serif;font-size:14px;font-weight:800;letter-spacing:-0.3px;line-height:1.2}
@@ -192,30 +220,23 @@ textarea{resize:vertical;min-height:90px}
 .tpl-creative .c-sidebar-section{padding:16px 16px 8px}
 .tpl-creative .c-sidebar-title{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;opacity:0.7;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid rgba(255,255,255,0.25)}
 .tpl-creative .c-contact-item{font-size:10px;opacity:0.9;margin-bottom:5px;word-break:break-all;line-height:1.4}
-.tpl-creative .c-skill-bar{margin-bottom:8px}
-.tpl-creative .c-skill-name{font-size:10px;opacity:0.9;margin-bottom:3px}
-.tpl-creative .c-skill-dot-row{display:flex;gap:3px}
-.tpl-creative .c-skill-dot{width:14px;height:4px;border-radius:2px;background:rgba(255,255,255,0.3)}
-.tpl-creative .c-skill-dot.fill{background:rgba(255,255,255,0.9)}
-.tpl-creative .c-lang-item{font-size:10px;margin-bottom:5px;opacity:0.9}
-.tpl-creative .c-lang-level{font-size:9px;opacity:0.65}
 .tpl-creative .c-main{background:#fff;color:#1e1e2e;padding:28px 24px}
 .tpl-creative .c-main-name{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;letter-spacing:-0.5px;color:#1e1e2e}
-.tpl-creative .c-main-role{font-size:12px;color:#ff6b9d;font-weight:600;margin-bottom:16px}
+.tpl-creative .c-main-role{font-size:12px;color:var(--accent);font-weight:600;margin-bottom:16px}
 .tpl-creative .c-section{margin-bottom:18px}
-.tpl-creative .c-section-title{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#ff6b9d;margin-bottom:10px;display:flex;align-items:center;gap:6px}
-.tpl-creative .c-section-title:after{content:'';flex:1;height:1.5px;background:linear-gradient(90deg,#ff6b9d55,transparent)}
+.tpl-creative .c-section-title{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.tpl-creative .c-section-title:after{content:'';flex:1;height:1.5px;background:linear-gradient(90deg,var(--accent),transparent);opacity:0.5}
 .tpl-creative .c-entry{margin-bottom:12px}
 .tpl-creative .c-entry-title{font-weight:700;font-size:12px;color:#1e1e2e}
-.tpl-creative .c-entry-sub{font-size:11px;color:#c44dff;font-weight:500}
+.tpl-creative .c-entry-sub{font-size:11px;color:var(--accent);font-weight:500}
 .tpl-creative .c-entry-date{font-size:10px;color:#999;margin-bottom:4px;font-family:'DM Mono',monospace}
 .tpl-creative .c-entry-desc{font-size:11px;color:#555;line-height:1.6}
-.tpl-creative .c-tag{display:inline-block;padding:2px 7px;border-radius:3px;font-size:10px;font-weight:500;background:#fff0f6;color:#c44dff;border:1px solid #ff6b9d44;margin:2px 2px 2px 0}
+.tpl-creative .c-tag{display:inline-block;padding:2px 7px;border-radius:3px;font-size:10px;font-weight:500;background:#f5f6fa;color:var(--accent);border:1px solid var(--accent);margin:2px 2px 2px 0}
 .tpl-creative .c-bullet{font-size:11px;color:#444;padding-left:12px;position:relative;margin-bottom:3px}
-.tpl-creative .c-bullet:before{content:'◆';position:absolute;left:0;color:#ff6b9d;font-size:6px;top:3px}
+.tpl-creative .c-bullet:before{content:'◆';position:absolute;left:0;color:var(--accent);font-size:6px;top:3px}
 
-/* ============ TEMPLATE 4: CONVENTIONAL (NEW) ============ */
-.tpl-conventional{font-family:'Times New Roman', Times, serif;font-size:12px;color:#000;background:#fff;padding:36px;max-width:210mm;margin:0 auto}
+/* ============ TEMPLATE 4: CONVENTIONAL ============ */
+.tpl-conventional{font-family:var(--resume-font, 'Times New Roman', Times, serif);font-size:12px;color:#000;background:#fff;padding:36px;max-width:210mm;margin:0 auto}
 .tpl-conventional .cv-header{text-align:center;margin-bottom:20px}
 .tpl-conventional .cv-name{font-size:26px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
 .tpl-conventional .cv-contacts{display:flex;justify-content:center;flex-wrap:wrap;gap:12px;font-size:12px}
@@ -233,7 +254,6 @@ textarea{resize:vertical;min-height:90px}
 /* UTILITY */
 .flex{display:flex}.items-center{align-items:center}.gap-2{gap:8px}.gap-3{gap:12px}.mt-2{margin-top:8px}.mt-3{margin-top:12px}
 .badge{padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;background:var(--surface3);color:var(--text2)}
-.badge.accent{background:#6c63ff22;color:var(--accent)}
 .divider{height:1px;background:var(--border);margin:16px 0}
 .hint{font-size:11px;color:var(--text3);font-style:italic;margin-top:4px}
 .section-vis-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px}
@@ -254,6 +274,30 @@ select option{background:var(--surface2);color:var(--text)}
 .color-option{width:24px;height:24px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:.15s}
 .color-option.active{border-color:var(--text);transform:scale(1.15)}
 .color-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+
+/* =========================================
+   NATIVE PRINT CSS (MAGIC FOR PDF VECTOR EXPORT)
+========================================= */
+@media print {
+  @page { margin: 12mm 0; size: A4 portrait; }
+  body { background: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; margin: 0; padding: 0; }
+  
+  /* Hide the UI */
+  #topbar, #sidebar, #editor, .preview-toolbar, .toast, input[type="file"] { 
+    display: none !important; 
+  }
+  
+  /* Reset the preview area perfectly to the page */
+  #app { display: block !important; height: auto !important; overflow: visible !important; }
+  #preview-panel { display: block !important; padding: 0 !important; margin: 0 !important; background: transparent !important; overflow: visible !important; height: auto !important; }
+  
+  /* Strip all scaling from the live preview view */
+  #preview-scale-wrap { transform: none !important; width: 100% !important; margin: 0 !important; }
+  #preview-wrap { box-shadow: none !important; border-radius: 0 !important; width: 100% !important; margin: 0 !important; min-height: auto !important;}
+  
+  /* Apply page breaks properly */
+  .break-avoid { break-inside: avoid !important; page-break-inside: avoid !important; }
+}
 
 /* Responsive */
 @media(max-width:900px){
@@ -282,6 +326,7 @@ select option{background:var(--surface2);color:var(--text)}
     <button class="tb-btn" onclick="importJSON()" title="Import JSON">⬆ Import</button>
     <button class="tb-btn" onclick="exportJSON()" title="Export JSON">⬇ Export</button>
     <button class="tb-btn" onclick="saveVersion()" title="Save version">💾 Save</button>
+    <!-- EXPORT BUTTON TRIGGER -->
     <button class="tb-btn primary" onclick="exportPDF()" title="Export PDF">📄 PDF</button>
     <button class="tb-btn" onclick="toggleDark()" id="dark-btn" title="Toggle dark mode">🌙</button>
   </div>
@@ -290,9 +335,22 @@ select option{background:var(--surface2);color:var(--text)}
   <div id="sidebar">
     <div class="sidebar-section">Sections</div>
     <div id="sidebar-nav"></div>
+    
     <div class="sidebar-bottom">
       <div class="sidebar-section" style="padding:0 0 8px">Templates</div>
       <div class="template-pills" id="tpl-pills"></div>
+      
+      <div style="margin-top:16px">
+        <div class="sidebar-section" style="padding:0 0 8px">Font Family</div>
+        <select id="font-select" class="font-select-ui" onchange="setFont(this.value)">
+          <option value="">Template Default</option>
+          <option value="'Times New Roman', Times, serif">Times New Roman</option>
+          <option value="'Arial', Helvetica, sans-serif">Arial / Helvetica</option>
+          <option value="'Georgia', serif">Georgia</option>
+          <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
+        </select>
+      </div>
+
       <div style="margin-top:16px">
         <div class="sidebar-section" style="padding:0 0 8px">Accent Color</div>
         <div class="color-row" id="color-row"></div>
@@ -312,7 +370,7 @@ select option{background:var(--surface2);color:var(--text)}
       <span class="scale-info" id="scale-info">210mm × A4</span>
       <button class="tb-btn" onclick="exportPDF()" style="font-size:12px;padding:5px 12px">⬇ PDF</button>
     </div>
-    <div id="preview-scale-wrap" style="transform-origin:top center;width:210mm">
+    <div id="preview-scale-wrap">
       <div id="preview-wrap">
         <div id="resume-preview"></div>
       </div>
@@ -446,8 +504,9 @@ let currentSection = 'personal';
 let currentTemplate = localStorage.getItem('resumeforge_template') || 'conventional';
 let isDark = localStorage.getItem('resumeforge_dark') !== 'false';
 let versionHistory = JSON.parse(localStorage.getItem('resumeforge_history') || '[]');
-const ACCENT_COLORS = ['#6c63ff','#ff6b9d','#43e97b','#f59e0b','#06b6d4','#ef4444','#8b5cf6','#ec4899'];
+const ACCENT_COLORS = ['#6c63ff','#2563eb','#0d9488','#16a34a','#eab308','#ea580c','#dc2626','#9333ea'];
 let accentColor = localStorage.getItem('resumeforge_accent') || '#6c63ff';
+let currentFont = localStorage.getItem('resumeforge_font') || '';
 
 function deepClone(o){return JSON.parse(JSON.stringify(o))}
 function save(){
@@ -455,6 +514,7 @@ function save(){
   localStorage.setItem('resumeforge_template', currentTemplate);
   localStorage.setItem('resumeforge_dark', isDark);
   localStorage.setItem('resumeforge_accent', accentColor);
+  localStorage.setItem('resumeforge_font', currentFont);
 }
 function showToast(msg, dur=2500){
   const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
@@ -496,7 +556,9 @@ function buildSidebar(){
   const cr=document.getElementById('color-row');
   cr.innerHTML=ACCENT_COLORS.map(c=>`
     <div class="color-option ${c===accentColor?'active':''}" style="background:${c}" onclick="setAccent('${c}')" title="${c}"></div>`).join('');
+  
   document.getElementById('template-select').value=currentTemplate;
+  document.getElementById('font-select').value=currentFont;
 }
 
 function switchSection(id){
@@ -514,6 +576,16 @@ function switchTemplate(t){
 function setAccent(c){
   accentColor=c;
   document.documentElement.style.setProperty('--accent',c);
+  buildSidebar();
+  save();
+}
+function setFont(f){
+  currentFont=f;
+  if(f) {
+    document.documentElement.style.setProperty('--resume-font', f);
+  } else {
+    document.documentElement.style.removeProperty('--resume-font');
+  }
   buildSidebar();
   save();
 }
@@ -852,7 +924,9 @@ function scalePreview(){
   const scale=Math.min(1,availW/targetW);
   wrap.style.transform=`scale(${scale})`;
   wrap.style.width=targetW+'px';
-  wrap.parentElement.style.height=(document.getElementById('preview-wrap').offsetHeight*scale+80)+'px';
+  
+  const wrapH=document.getElementById('preview-wrap').offsetHeight*scale;
+  wrap.parentElement.style.height=(wrapH+40)+'px';
   document.getElementById('scale-info').textContent=`Scale ${Math.round(scale*100)}%`;
 }
 
@@ -1201,57 +1275,12 @@ function renderCreative(sv){
 }
 
 // =============================================
-// IMPORT / EXPORT
-// =============================================
-function exportJSON(){
-  const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
-  a.download=`resume_${(state.personal.name||'export').replace(/\s+/g,'_')}.json`;
-  a.click();showToast('JSON exported!');
-}
-function importJSON(){document.getElementById('json-import-input').click();}
-function handleJSONImport(e){
-  const file=e.target.files[0];if(!file)return;
-  const reader=new FileReader();
-  reader.onload=ev=>{
-    try{
-      const imported=JSON.parse(ev.target.result);
-      if(!imported.personal)throw new Error('Invalid format');
-      state=imported;save();renderEditor();renderPreview();buildSidebar();
-      showToast('Resume imported successfully!');
-    }catch(err){alert('Invalid JSON file: '+err.message);}
-  };
-  reader.readAsText(file);
-  e.target.value='';
-}
-
-// =============================================
-// PDF EXPORT (UPDATED CONFIG FOR PAGE BREAKS)
+// NATIVE PDF EXPORT (REPLACES HTML2PDF)
 // =============================================
 function exportPDF(){
-  showToast('Generating PDF...',4000);
-  const el=document.getElementById('resume-preview');
-  
-  const scaleWrap=document.getElementById('preview-scale-wrap');
-  const origTransform=scaleWrap.style.transform;
-  scaleWrap.style.transform='scale(1)';
-  
-  const opt={
-    margin:[0,0,0,0],
-    filename:`${(state.personal.name||'resume').replace(/\s+/g,'_')}_resume.pdf`,
-    image:{type:'jpeg',quality:0.98},
-    html2canvas:{scale:2,useCORS:true,letterRendering:true},
-    jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},
-    pagebreak:{mode:['css','legacy']} // Relies on our .break-avoid CSS classes
-  };
-  
-  html2pdf().set(opt).from(el).save().then(()=>{
-    scaleWrap.style.transform=origTransform;
-    showToast('PDF downloaded!');
-  }).catch(()=>{
-    scaleWrap.style.transform=origTransform;
-    showToast('PDF export failed. Try again.');
-  });
+  showToast('Opening print dialog. Select "Save as PDF" for vector quality.', 4000);
+  // Using native browser print creates pure vector PDFs, perfect for ATS!
+  window.print();
 }
 
 // =============================================
@@ -1268,6 +1297,8 @@ function init(){
   document.documentElement.setAttribute('data-theme',isDark?'dark':'light');
   document.getElementById('dark-btn').textContent=isDark?'🌙':'☀️';
   document.documentElement.style.setProperty('--accent',accentColor);
+  if(currentFont) document.documentElement.style.setProperty('--resume-font', currentFont);
+  
   buildSidebar();
   renderEditor();
   renderPreview();
