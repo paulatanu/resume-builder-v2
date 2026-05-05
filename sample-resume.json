@@ -1,0 +1,140 @@
+{
+  "personal": {
+    "name": "Atanu Paul",
+    "role": "Data Analyst",
+    "location": "Howrah, West Bengal, India",
+    "phone": "+91-8967006057",
+    "email": "paulatanu14@gmail.com",
+    "linkedin": "linkedin.com/in/atanu-paul-181591232",
+    "github": "github.com/atanupay06",
+    "website": ""
+  },
+  "summary": "Dynamic and detail-oriented Data Analyst with 1-3 years of experience specializing in SQL database management, data visualization, and workflow automation. Skilled in transforming complex data into actionable business insights through Power BI, Looker Studio, and custom automation using Appscript. Proven ability to manage 30+ member team productivity metrics, conduct rigorous data quality assurance, and deliver impactful client reports.",
+  "expertise": [
+    "Data Analysis - SQL (BigQuery, pgSQL), extraction & transformation",
+    "Dashboard development in Power BI, Looker Studio",
+    "Automation & workflow optimization using Appscript",
+    "Client reporting, presentation, and business review analytics",
+    "Project Data Management - Throughput, Quality Control, Stack Ranking",
+    "Cartography - Traffic Feature Mapping and Lane Annotation for AVs",
+    "Machine Learning - Spatial Data Models & Data Science Techniques",
+    "Simulation Testing - Road Event Simulation & AV Behaviour Analysis"
+  ],
+  "skills": [
+    {
+      "category": "Data Visualization",
+      "items": ["Power BI", "Google Looker Studio", "MS Excel VBA", "Jira Dashboard"]
+    },
+    {
+      "category": "GIS & Remote Sensing",
+      "items": ["ArcMap 10.8", "ArcGIS Pro", "QGIS", "Google Earth Engine", "AutoCAD"]
+    },
+    {
+      "category": "Programming",
+      "items": ["Python", "R", "C++", "JavaScript", "Google Earth Engine"]
+    },
+    {
+      "category": "Data / ML",
+      "items": ["SQL", "scikit-learn", "pandas", "BigQuery", "ETL", "NumPy", "Matplotlib"]
+    },
+    {
+      "category": "Collaboration",
+      "items": ["Git", "GitHub", "VS Code", "CI/CD", "Jira", "Agile"]
+    }
+  ],
+  "experience": [
+    {
+      "title": "Sr. ITES Executive (Data Analyst)",
+      "company": "iMerit Technologies",
+      "location": "Remote",
+      "startDate": "May 2023",
+      "endDate": "Present",
+      "description": "Managed lane and traffic mapping using Web-GIS, integrating LiDAR data analysis and AV feedback. Built and validated simulation scenes, tracked test results in Jira. Led QA activities, produced RCA reports, and designed decision trees. Automated monthly productivity reporting using Appscript and Power BI. Developed Kanban boards and Edge Case Management System. Utilized BigQuery for high-volume data extraction."
+    },
+    {
+      "title": "GIS Engineer",
+      "company": "AABSyS IT Pvt. Ltd",
+      "location": "Kolkata, India",
+      "startDate": "Oct 2022",
+      "endDate": "May 2023",
+      "description": "Mapped and managed large spatial datasets for US infrastructure projects (Utility, Electricity, Gas Distribution). Ensured high accuracy through QA, coordinated team processes and SLA calculations. Specialized in client reporting and data visualization in Looker Studio. Managed geo-coded utility data workflows in QGIS."
+    }
+  ],
+  "projects": [
+    {
+      "name": "Yield Prediction Dashboard",
+      "tech": "Python, Streamlit, pandas, scikit-learn",
+      "description": "Built an interactive Streamlit dashboard for agricultural yield prediction using machine learning models."
+    },
+    {
+      "name": "Kanban Board with CRUD",
+      "tech": "Google Appscript, Google Sheets, Looker Studio",
+      "description": "Developed a full CRUD-enabled Kanban board system for team task management with automated notifications."
+    },
+    {
+      "name": "Edge Case Management System",
+      "tech": "Appscript, BigQuery, Power BI",
+      "description": "Designed an edge case tracking system for AV simulation testing with automated data extraction and reporting."
+    }
+  ],
+  "certifications": [
+    { "name": "Diploma in Data Science", "issuer": "Vidyasagar University (CCAE)", "year": "2022-2023" },
+    { "name": "Google Looker Masterclass (A-Z 2025)", "issuer": "Udemy", "year": "2025" },
+    { "name": "Git and GitHub Bootcamp", "issuer": "Udemy", "year": "2025" },
+    { "name": "Python for Data Science", "issuer": "Udemy", "year": "2023" },
+    { "name": "Advanced MS Excel VBA", "issuer": "Udemy", "year": "2023" },
+    { "name": "Introduction to Deep Learning", "issuer": "Great Learning", "year": "2023" },
+    { "name": "Artificial Intelligence Fundamentals", "issuer": "Great Learning", "year": "2023" }
+  ],
+  "education": [
+    {
+      "degree": "M.Sc. in Remote Sensing and GIS",
+      "institution": "Vidyasagar University, West Bengal",
+      "year": "2020 – 2022",
+      "grade": "9.06/10 CGPA"
+    },
+    {
+      "degree": "Diploma in Data Science",
+      "institution": "Vidyasagar University (CCAE), WB",
+      "year": "2022 – 2023",
+      "grade": "93.4%"
+    },
+    {
+      "degree": "B.Sc. in Mathematics",
+      "institution": "Vidyasagar University, West Bengal",
+      "year": "2017 – 2020",
+      "grade": "7.7/10 CGPA"
+    }
+  ],
+  "personalSkills": [
+    "Leadership", "Teamwork", "Creative Problem Solving",
+    "Communication & Public Speaking", "Self-Motivated",
+    "Time Management", "Stakeholder Collaboration", "Analytical Thinking"
+  ],
+  "languages": [
+    { "name": "Bengali", "level": "Native" },
+    { "name": "English", "level": "Fluent" },
+    { "name": "Hindi", "level": "Fluent" },
+    { "name": "Odia", "level": "Conversational" }
+  ],
+  "volunteer": [
+    {
+      "role": "Data Science Trainer (Volunteer)",
+      "org": "Vidyasagar University & LinkedIn",
+      "period": "Ongoing",
+      "description": "Conducting data science training covering analysis, visualization, and hands-on Python projects. Mentoring learners via LinkedIn community and providing feedback on project work."
+    },
+    {
+      "role": "Data Science Trainer",
+      "org": "SentientWare Tech Solutions Pvt. Ltd.",
+      "period": "May 2024 – Jul 2024",
+      "description": "Covered basics to intermediate Data Science topics for internship programme participants."
+    }
+  ],
+  "hobbies": ["Cricket", "Gardening", "Drawing"],
+  "sectionVisibility": {
+    "summary": true, "expertise": true, "skills": true, "experience": true,
+    "projects": true, "certifications": true, "education": true,
+    "personalSkills": true, "languages": true, "volunteer": true, "hobbies": true
+  }
+}
